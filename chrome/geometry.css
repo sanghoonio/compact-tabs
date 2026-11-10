@@ -6,6 +6,9 @@
     --ct-radius: 6px;
     --ct-tab-gap: 6px;
     --ct-tab-inset: calc(var(--ct-tab-gap) / 2);
+    /* Resolve at the root, before TabsToolbar substitutes its tab-sized padding. */
+    --ct-toolbar-inner-padding: var(--toolbarbutton-padding-inner, 8px);
+    --ct-toolbar-plate-size: calc(16px + 2 * var(--ct-toolbar-inner-padding));
     --ct-icon-hover-color: AccentColor;
     --ct-inactive: light-dark(rgb(0 0 0 / 0.045), rgb(255 255 255 / 0.055));
     --ct-selected: light-dark(rgb(0 0 0 / 0.13), rgb(255 255 255 / 0.16));
@@ -77,23 +80,18 @@
     background-color: var(--toolbar-bgcolor) !important;
   }
 
-  /* List all tabs is in TabsToolbar, so normalize its plate with the
-   * navigation arrows rather than inheriting a different tab-toolbar shape. */
-  :is(#back-button, #forward-button, #alltabs-button) > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
+  /* Use the native navigation metrics, not TabsToolbar's smaller tab metrics.
+   * Leave Back/Forward and all native hover/pressed color rules untouched. */
+  #alltabs-button {
+    --toolbarbutton-padding-inner: var(--ct-toolbar-inner-padding) !important;
+  }
+
+  #alltabs-button > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
     box-sizing: border-box !important;
-    width: 28px !important;
-    height: 28px !important;
-    padding: 6px !important;
+    width: var(--ct-toolbar-plate-size) !important;
+    height: var(--ct-toolbar-plate-size) !important;
+    padding: var(--ct-toolbar-inner-padding) !important;
     border-radius: var(--ct-radius) !important;
-    background: transparent !important;
-  }
-
-  :is(#back-button, #forward-button, #alltabs-button):not([disabled]):hover > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
-    background: var(--toolbarbutton-hover-background, color-mix(in srgb, currentColor 10%, transparent)) !important;
-  }
-
-  :is(#back-button, #forward-button, #alltabs-button):is([open], :hover:active):not([disabled]) > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
-    background: var(--toolbarbutton-active-background, color-mix(in srgb, currentColor 16%, transparent)) !important;
   }
 
   /* Each unavailable history action disappears and releases its space.

@@ -57,11 +57,12 @@
         /* Own slot between trailing toolbar actions and the app menu. */
         #alltabs-button {
           position: fixed !important;
-          top: 6px !important;
+          top: 0 !important;
           right: 42px !important;
-          width: 36px !important;
-          height: 36px !important;
-          padding: 4px !important;
+          width: calc(var(--ct-toolbar-plate-size) + 2 * var(--toolbarbutton-padding-outer)) !important;
+          height: var(--ct-row-height) !important;
+          padding: 0 var(--toolbarbutton-padding-outer) !important;
+          align-items: center !important;
           margin: 0 !important;
           z-index: 4;
         }
