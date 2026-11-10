@@ -1,0 +1,87 @@
+/* Experimental Safari-style integration using the REAL Firefox URL bar.
+ * Deliberately limited to wide windows with up to three ordinary sibling tabs.
+ * Other states retain the native two-row layout plus geometry.css.
+ */
+@-moz-document url("chrome://browser/content/browser.xhtml") {
+  @supports (anchor-name: --ct-selected) and (left: anchor(left)) {
+    @media (min-width: 1100px) and (-moz-platform: macos) {
+      :root:not([customizing], [inFullscreen], [inDOMFullscreen])
+        :is(#navigator-toolbox):has(#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab[selected]:not([pinned])):not(:has(#tabbrowser-tabs tab-group, #tabbrowser-tabs .tabbrowser-tab ~ .tabbrowser-tab ~ .tabbrowser-tab ~ .tabbrowser-tab)) {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr);
+        align-items: center;
+
+        > #TabsToolbar, > #nav-bar {
+          grid-area: 1 / 1;
+          min-width: 0 !important;
+          min-height: var(--ct-row-height) !important;
+        }
+
+        > :not(#TabsToolbar, #nav-bar) { grid-column: 1; }
+
+        > #TabsToolbar {
+          /* Native leading titlebar reserve remains intact. */
+          padding-inline: 0 !important;
+        }
+
+        #TabsToolbar > .toolbar-items {
+          margin-inline: 140px 170px !important;
+          min-width: 0 !important;
+        }
+
+        > #nav-bar {
+          background: transparent !important;
+          box-shadow: none !important;
+          border: 0 !important;
+          padding-inline: 80px 4px !important;
+          pointer-events: none;
+          z-index: 3;
+          display: flex !important;
+        }
+
+        #nav-bar-customization-target {
+          display: flex !important;
+          flex: 1 1 auto !important;
+          min-width: 0 !important;
+        }
+        #stop-reload-button { margin-inline-end: auto !important; }
+
+        #nav-bar > .titlebar-spacer { display: none !important; }
+        #nav-bar toolbarbutton, #urlbar-container { pointer-events: auto; }
+        #nav-bar toolbarspring { flex: 1 !important; }
+
+        #tabbrowser-tabs { justify-content: center; }
+        .tabbrowser-tab[selected]:not([pinned]) {
+          anchor-name: --ct-selected;
+          min-width: 300px !important;
+          max-width: 420px !important;
+          flex: 3 1 300px !important;
+        }
+
+        /* The real tab close button stays visible at the trailing edge. */
+        .tabbrowser-tab[selected] .tab-label-container,
+        .tabbrowser-tab[selected] .tab-icon-stack { visibility: hidden; }
+
+        #urlbar-container {
+          position: fixed !important;
+          position-anchor: --ct-selected;
+          left: calc(anchor(left) + 6px) !important;
+          top: calc(anchor(top) + 10px) !important;
+          width: calc(anchor-size(width) - 40px) !important;
+          min-width: 0 !important;
+          height: var(--ct-cell-height) !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          --urlbar-height: var(--ct-cell-height) !important;
+          --urlbar-container-min-width: 0px !important;
+        }
+
+        #urlbar {
+          width: 100% !important;
+          --urlbar-border-radius: var(--ct-radius) !important;
+          --urlbar-background-border-radius: var(--ct-radius) !important;
+        }
+      }
+    }
+  }
+}

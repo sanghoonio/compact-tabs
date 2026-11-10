@@ -22,12 +22,12 @@ The research produced three tracks in one workflow: [Safari survey](SAFARI-SURVE
 - Native browser controls are reused wherever possible.
 - No existing theme is adopted wholesale.
 - CSS anchor positioning is worth a test before assuming privileged JavaScript is needed.
-- Implementation has begun in `compact-tabs-dev` only. Geometry CSS is installed; single-row and anchor-probe modes are prepared but unverified.
+- Implementation and live validation are underway in `compact-tabs-dev` only. Geometry, single-row and anchor-probe modes were inspected. Selected-address mode now demonstrates the real URL bar following tab selection without privileged JavaScript. See the experiment ledger for tested cases and remaining limits.
 
 ## Remaining blockers
 
 - Exact logical Safari dimensions and the remaining state matrix still need verification; local screenshot estimates are available.
 - Git initialization now succeeds. No remote has been requested.
-- The profile manager's launch action produced no visible result; user launch of `compact-tabs-dev` is needed before visual validation. Computer Use blocks Terminal, so that launch route was not used.
+- User launch and closing the competing regular instance resolved initial Computer Use attachment. Rebinding after restarts and verifying the profile remain necessary. Visual validation is no longer blocked.
 
 See the README for the isolated-profile launch command and mode installation/rollback.

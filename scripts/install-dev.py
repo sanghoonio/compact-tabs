@@ -29,7 +29,7 @@ def find_profile():
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--mode', choices=['geometry', 'single-row', 'anchor-probe'], default='geometry')
+    parser.add_argument('--mode', choices=['geometry', 'single-row', 'anchor-probe', 'selected-address'], default='geometry')
     parser.add_argument('--remove', action='store_true', help='Remove this installer\'s entry stylesheet only.')
     parser.add_argument('--dry-run', action='store_true')
     args = parser.parse_args()

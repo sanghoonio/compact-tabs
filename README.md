@@ -6,7 +6,9 @@ The priorities are layout, spacing, and visual balance. Firefox icons and their 
 
 ## Status
 
-Early prototype. Git is initialized. The geometry stylesheet has been installed only into an isolated `compact-tabs-dev` profile. Visual verification of Firefox and the two layout experiments is pending; the profile manager's launch button produced no visible result.
+Early prototype, tested in Firefox 159.0.1 on macOS 15.7.4. The isolated `compact-tabs-dev` profile currently runs the experimental `selected-address` mode: the real Firefox address field follows the selected tab in one row. Native Firefox icons, site identity controls, address editing and suggestions remain in use. Your regular profile has not had theme CSS installed.
+
+This is a bounded proof of concept, not a finished daily-use theme. Integration is limited to wide windows with up to three ungrouped sibling tabs and an ordinary selected tab. Narrow windows, four or more ordinary tabs, grouped tabs, pinned selections, fullscreen and customization fall back to the geometry baseline. Pinned, grouped, fullscreen and customization behavior still need live verification.
 
 ## Try the development build
 
@@ -23,13 +25,15 @@ python3 scripts/install-dev.py --dry-run
 python3 scripts/install-dev.py --mode geometry
 python3 scripts/install-dev.py --mode single-row
 python3 scripts/install-dev.py --mode anchor-probe
+python3 scripts/install-dev.py --mode selected-address
 ```
 
-Choose one mode, then restart only that profile. Modes are alternatives, not cumulative. `geometry` is the current installed mode. It requires `toolkit.legacyUserProfileCustomizations.stylesheets=true`, already set in the development profile's `user.js`.
+Choose one mode, then restart only that profile. Modes are alternatives, not cumulative. `selected-address` is the current installed mode; `geometry` is the installer's conservative default. Stylesheet loading requires `toolkit.legacyUserProfileCustomizations.stylesheets=true`, already set in the development profile's `user.js`.
 
 - `geometry`: native two-row layout with proposed tab proportions.
 - `single-row`: experimental shared toolbar row at window widths of at least 1150 CSS pixels, with native layout fallback for narrower windows, fullscreen, customization and vertical tabs.
-- `anchor-probe`: geometry plus a pink marker intended to track the selected tab. It does not reposition the URL bar. Successful parsing is not proof that tracking works.
+- `anchor-probe`: geometry plus a pink marker that was observed following tab selection. It does not reposition the URL bar.
+- `selected-address`: the real address field anchored over a wider selected tab; native navigation controls remain at the leading edge and actions at the trailing edge. Applies at widths of at least 1100 CSS pixels within the limits above.
 
 Rollback:
 

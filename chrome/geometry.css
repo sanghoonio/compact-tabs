@@ -9,7 +9,7 @@
     --tab-min-height: var(--ct-cell-height) !important;
     --tabstrip-min-height: var(--ct-row-height) !important;
     --tab-border-radius: var(--ct-radius) !important;
-    --tab-block-margin: 10px !important;
+    --tab-margin-block: 10px !important;
     --toolbarbutton-border-radius: var(--ct-radius) !important;
   }
 
