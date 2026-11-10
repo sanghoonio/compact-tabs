@@ -57,10 +57,11 @@
         /* Own slot between trailing toolbar actions and the app menu. */
         #alltabs-button {
           position: fixed !important;
-          top: 10px !important;
-          right: 44px !important;
-          width: 32px !important;
-          height: 28px !important;
+          top: 6px !important;
+          right: 42px !important;
+          width: 36px !important;
+          height: 36px !important;
+          padding: 4px !important;
           margin: 0 !important;
           z-index: 4;
         }
@@ -71,7 +72,7 @@
         #stop-reload-button {
           position: fixed !important;
           position-anchor: --ct-selected;
-          left: calc(anchor(right) - 62px) !important;
+          left: calc(anchor(right) - 56px - var(--ct-tab-inset)) !important;
           top: calc(anchor(top) + 10px) !important;
           width: 28px !important;
           height: 28px !important;
@@ -117,9 +118,9 @@
         #urlbar-container {
           position: fixed !important;
           position-anchor: --ct-selected;
-          left: calc(anchor(left) + 6px) !important;
+          left: calc(anchor(left) + var(--ct-tab-inset)) !important;
           top: calc(anchor(top) + 10px) !important;
-          width: calc(anchor-size(width) - 40px) !important;
+          width: calc(anchor-size(width) - var(--ct-tab-gap) - 28px) !important;
           min-width: 0 !important;
           height: var(--ct-cell-height) !important;
           margin: 0 !important;

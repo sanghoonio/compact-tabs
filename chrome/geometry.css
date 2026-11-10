@@ -4,6 +4,8 @@
     --ct-row-height: 48px;
     --ct-cell-height: 28px;
     --ct-radius: 6px;
+    --ct-tab-gap: 6px;
+    --ct-tab-inset: calc(var(--ct-tab-gap) / 2);
     --ct-icon-hover-color: AccentColor;
     --ct-inactive: light-dark(rgb(0 0 0 / 0.045), rgb(255 255 255 / 0.055));
     --ct-selected: light-dark(rgb(0 0 0 / 0.13), rgb(255 255 255 / 0.16));
@@ -17,12 +19,23 @@
   /* Deliberately avoid changing icon images, masks, labels or security UI. */
   #tabbrowser-tabs[orient="horizontal"] {
     --tab-min-width: 76px !important;
-    --tab-max-width: 160px !important;
+    --tab-max-width: 154px !important;
   }
 
   #tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab {
-    padding-inline: 6px !important;
+    padding-inline: var(--ct-tab-inset) !important;
   }
+
+  /* Equal surface-to-surface gaps, including the adjacent New Tab button.
+   * Keep both native button variants usable when the user moves the widget. */
+  #tabbrowser-tabs[orient="horizontal"] #tabs-newtab-button,
+  #TabsToolbar #new-tab-button {
+    margin-inline: 0 !important;
+    padding-inline: var(--ct-tab-inset) !important;
+  }
+
+  /* Suppress the hover card without hiding the actual tab or its label. */
+  #tab-preview-panel { display: none !important; }
 
   #tabbrowser-tabs[orient="horizontal"] .tab-background {
     min-height: var(--ct-cell-height) !important;
@@ -57,11 +70,30 @@
   }
 
   #tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab[pinned] {
-    padding-inline: 4px !important;
+    padding-inline: var(--ct-tab-inset) !important;
   }
 
   #TabsToolbar {
     background-color: var(--toolbar-bgcolor) !important;
+  }
+
+  /* List all tabs is in TabsToolbar, so normalize its plate with the
+   * navigation arrows rather than inheriting a different tab-toolbar shape. */
+  :is(#back-button, #forward-button, #alltabs-button) > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
+    box-sizing: border-box !important;
+    width: 28px !important;
+    height: 28px !important;
+    padding: 6px !important;
+    border-radius: var(--ct-radius) !important;
+    background: transparent !important;
+  }
+
+  :is(#back-button, #forward-button, #alltabs-button):not([disabled]):hover > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
+    background: var(--toolbarbutton-hover-background, color-mix(in srgb, currentColor 10%, transparent)) !important;
+  }
+
+  :is(#back-button, #forward-button, #alltabs-button):is([open], :hover:active):not([disabled]) > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
+    background: var(--toolbarbutton-active-background, color-mix(in srgb, currentColor 16%, transparent)) !important;
   }
 
   /* Each unavailable history action disappears and releases its space.

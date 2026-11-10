@@ -39,6 +39,8 @@ In integrated mode, Reload/Stop sits at the trailing side of the selected addres
 
 Controls inside tabs use flat, transparent button surfaces without nested pill or hover backgrounds. Security, translation and Reload glyphs are 12px, comparable to the tab close glyph, while their click targets retain their previous sizes. Hover uses the system accent color, configured by `--ct-icon-hover-color` in `chrome/geometry.css`. Keyboard focus indicators and resting security status labels/colors are preserved.
 
+Tab hover preview cards are suppressed by CSS. Tabs and the adjacent New Tab button use the shared `--ct-tab-gap` (6px); the button retains its native toolbar placement so it can be moved later. List all tabs uses the same 28px rounded hover/pressed plate as Back and Forward.
+
 VPN is also a removable toolbar widget through Customize Toolbar. The shipped Extensions hub is marked non-removable, so this project hides it in CSS. To restore either button visually, remove its selector from the visibility rule in `chrome/geometry.css`, reinstall, and restart the development profile.
 
 Rollback:
