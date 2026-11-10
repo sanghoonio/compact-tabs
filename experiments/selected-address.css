@@ -12,6 +12,10 @@
         align-items: center;
         --ct-history-width: 72px;
 
+        &:has(#back-button[disabled]), &:has(#forward-button[disabled]) {
+          --ct-history-width: 36px;
+        }
+
         &:has(#back-button[disabled]):has(#forward-button[disabled]) {
           --ct-history-width: 0px;
         }
@@ -30,7 +34,7 @@
         }
 
         #TabsToolbar > .toolbar-items {
-          margin-inline: calc(68px + var(--ct-history-width)) 170px !important;
+          margin-inline: calc(32px + var(--ct-history-width)) 170px !important;
           min-width: 0 !important;
         }
 
@@ -48,8 +52,44 @@
           display: flex !important;
           flex: 1 1 auto !important;
           min-width: 0 !important;
+          padding-inline-end: 36px !important;
         }
-        #stop-reload-button { margin-inline-end: auto !important; }
+        /* Own slot between trailing toolbar actions and the app menu. */
+        #alltabs-button {
+          position: fixed !important;
+          top: 10px !important;
+          right: 44px !important;
+          width: 32px !important;
+          height: 28px !important;
+          margin: 0 !important;
+          z-index: 4;
+        }
+        #forward-button { margin-inline-end: auto !important; }
+        &:has(#forward-button[disabled]) #back-button { margin-inline-end: auto !important; }
+        &:has(#back-button[disabled]):has(#forward-button[disabled]) #sidebar-button { margin-inline-end: auto !important; }
+
+        #stop-reload-button {
+          position: fixed !important;
+          position-anchor: --ct-selected;
+          left: calc(anchor(right) - 62px) !important;
+          top: calc(anchor(top) + 10px) !important;
+          width: 28px !important;
+          height: 28px !important;
+          margin: 0 !important;
+          z-index: 5;
+          pointer-events: auto;
+        }
+        #stop-reload-button > toolbarbutton {
+          padding: 0 !important;
+          margin: 0 !important;
+          min-width: 28px !important;
+        }
+        #stop-reload-button .toolbarbutton-icon {
+          box-sizing: border-box !important;
+          padding: 6px !important;
+          width: 28px !important;
+          height: 28px !important;
+        }
 
         #nav-bar > .titlebar-spacer { display: none !important; }
         #nav-bar toolbarbutton, #urlbar-container { pointer-events: auto; }
@@ -83,6 +123,8 @@
 
         #urlbar {
           width: 100% !important;
+          /* Reserve the former star's area for the actual Reload/Stop button. */
+          padding-inline-end: 28px !important;
           --urlbar-border-radius: var(--ct-radius) !important;
           --urlbar-background-border-radius: var(--ct-radius) !important;
         }

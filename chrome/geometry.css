@@ -50,9 +50,16 @@
     background-color: var(--toolbar-bgcolor) !important;
   }
 
-  /* History actions disappear as a pair only when neither is available.
+  /* Each unavailable history action disappears and releases its space.
    * Keep them visible in Customize Toolbar so the layout stays editable. */
-  :root:not([customizing]) #nav-bar:has(#back-button[disabled]):has(#forward-button[disabled]) :is(#back-button, #forward-button) {
+  :root:not([customizing]) :is(#back-button, #forward-button)[disabled] {
+    display: none !important;
+  }
+
+  /* Firefox's Extensions hub is non-removable in the shipped toolbar markup.
+   * Manage extensions through the application menu or about:addons instead. */
+  :root:not([customizing]) :is(#unified-extensions-button, #ipprotection-button),
+  #star-button-box {
     display: none !important;
   }
 

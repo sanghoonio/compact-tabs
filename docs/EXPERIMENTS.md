@@ -46,7 +46,10 @@ Live observations in Firefox 159.0.1:
 - Command-W closed the selected tab and moved the address field to the remaining selection.
 - Native Window > Move & Resize > Left produced a roughly 950px-wide window; the layout returned to two rows. Return to Previous Size restored integration.
 - Adding a fourth ordinary tab triggered two rows. Closing it restored one-row integration at three tabs. Temporary extra tabs were removed afterward.
-- History arrows use paired visibility per user correction: hide both only when neither direction is available; otherwise show both, retaining the native disabled state for the unavailable direction. The integrated tab reserve is 0px or 72px for the pair. Live checks confirmed both absent on a fresh tab, both present with Back enabled/Forward disabled, and both present with Back disabled/Forward enabled.
+- History arrows use independent visibility per the user's final correction: each unavailable direction is hidden. The integrated reserve is 0px, 36px or 72px. This restores the earlier tested behavior; the paired-visibility change was superseded. Current live checks again show Forward alone on the Example Domain tab and Back alone on About Profiles.
+- Reload/Stop now uses the existing `#stop-reload-button`, CSS-anchored to the selected tab's trailing address-field area. The star is hidden and input space reserved for Reload. Clicking the relocated Reload reloaded Example Domain; switching to About Profiles moved the control with the address field. In fallback layouts it remains in the native navigation toolbar. A slow-load Stop transition is not yet visually tested.
+- Bookmark star, VPN and the non-removable Extensions hub are hidden by CSS. Site identity and translation controls remain. Extensions can be managed via about:addons; bookmarks via Command-D or the menu. Customize Toolbar can still expose the hidden toolbar buttons.
+- List all tabs now has a fixed trailing slot between the account button and the application menu in integrated mode, with matching space reserved in the navigation target. Its popover opened successfully; the inspected wide layout showed no overlap.
 
 Screenshots were visually inspected in the conversation; exported evidence artifacts have not been saved. Coordinate dragging returned noWindowsAvailable, so the native Window menu was used for resizing.
 
@@ -55,3 +58,7 @@ Screenshots were visually inspected in the conversation; exported evidence artif
 Pinned selections, tab groups, fullscreen, customization, dark appearance, tab drag/reorder, unusual site identity/permission indicators, and enlarged text remain unverified. Right-clicking the active address area opens the URL context menu, as expected for a real input; full selected-tab context/drag affordances need review. The layout is still visually left weighted at low tab counts and retains Firefox's default toolbar palette; center balance and neutral materials are the next design pass.
 
 The theme intentionally falls back rather than offering compact integration for large tab sets at this stage. No claim of historical Safari 18 pixel fidelity is made.
+
+## Toolbar source details
+
+Shipped `browser.xhtml` marks `#unified-extensions-button` as `removable="false"`, whereas List all tabs is removable. Shipped `IPProtection.sys.mjs` defines `ipprotection-button` as a CustomizableUI widget. Its removal callback stops the VPN proxy if the widget is removed rather than moved. This prototype only hides the VPN button with CSS; it does not remove the widget, change VPN preferences, or change the proxy state. For manual toolbar changes use Customize Toolbar; the CSS visibility rule must also be removed if the user wants that button visible outside customization.
