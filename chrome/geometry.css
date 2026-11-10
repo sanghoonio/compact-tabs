@@ -50,6 +50,12 @@
     background-color: var(--toolbar-bgcolor) !important;
   }
 
+  /* Unavailable history actions disappear and surrender their space.
+   * Keep them visible in Customize Toolbar so the layout stays editable. */
+  :root:not([customizing]) :is(#back-button, #forward-button)[disabled] {
+    display: none !important;
+  }
+
   /* Keep native focus outlines and window-state behavior. */
   #tabbrowser-tabs[orient="horizontal"] .tab-background:-moz-window-inactive {
     opacity: 0.72;

@@ -10,6 +10,14 @@
         display: grid !important;
         grid-template-columns: minmax(0, 1fr);
         align-items: center;
+        --ct-history-width: 72px;
+
+        &:has(#back-button[disabled]), &:has(#forward-button[disabled]) {
+          --ct-history-width: 36px;
+        }
+        &:has(#back-button[disabled]):has(#forward-button[disabled]) {
+          --ct-history-width: 0px;
+        }
 
         > #TabsToolbar, > #nav-bar {
           grid-area: 1 / 1;
@@ -25,7 +33,7 @@
         }
 
         #TabsToolbar > .toolbar-items {
-          margin-inline: 140px 170px !important;
+          margin-inline: calc(68px + var(--ct-history-width)) 170px !important;
           min-width: 0 !important;
         }
 
