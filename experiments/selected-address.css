@@ -89,7 +89,8 @@
         }
         #stop-reload-button .toolbarbutton-icon {
           box-sizing: border-box !important;
-          padding: 6px !important;
+          /* Match the close button's 12px glyph inside the existing target. */
+          padding: 8px !important;
           width: 28px !important;
           height: 28px !important;
           background: transparent !important;
@@ -160,6 +161,22 @@
           background: transparent !important;
           border-radius: 0 !important;
           box-shadow: none !important;
+        }
+
+        #urlbar :is(#trust-icon, #identity-icon, #tracking-protection-icon),
+        #translations-button > .urlbar-icon {
+          width: 12px !important;
+          height: 12px !important;
+        }
+
+        #urlbar :is(#trust-icon-container, #identity-icon-box,
+          #tracking-protection-icon-container):is(:hover, [open], :focus-visible)
+          :is(#trust-icon, #identity-icon, #tracking-protection-icon),
+        #translations-button:is(:hover, [open], :focus-visible) > .urlbar-icon,
+        #stop-reload-button > toolbarbutton:is(:hover, :focus-visible) > .toolbarbutton-icon {
+          color: var(--ct-icon-hover-color) !important;
+          fill: currentColor !important;
+          fill-opacity: 1 !important;
         }
       }
     }

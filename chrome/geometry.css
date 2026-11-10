@@ -4,6 +4,7 @@
     --ct-row-height: 48px;
     --ct-cell-height: 28px;
     --ct-radius: 6px;
+    --ct-icon-hover-color: AccentColor;
     --ct-inactive: light-dark(rgb(0 0 0 / 0.045), rgb(255 255 255 / 0.055));
     --ct-selected: light-dark(rgb(0 0 0 / 0.13), rgb(255 255 255 / 0.16));
     --tab-min-height: var(--ct-cell-height) !important;
@@ -47,6 +48,12 @@
     background: transparent !important;
     box-shadow: none !important;
     border-radius: 0 !important;
+  }
+
+  #tabbrowser-tabs[orient="horizontal"] .tab-close-button:hover {
+    color: var(--ct-icon-hover-color) !important;
+    fill: currentColor !important;
+    fill-opacity: 1 !important;
   }
 
   #tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab[pinned] {
