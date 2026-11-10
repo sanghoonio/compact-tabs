@@ -46,7 +46,7 @@ Live observations in Firefox 159.0.1:
 - Command-W closed the selected tab and moved the address field to the remaining selection.
 - Native Window > Move & Resize > Left produced a roughly 950px-wide window; the layout returned to two rows. Return to Previous Size restored integration.
 - Adding a fourth ordinary tab triggered two rows. Closing it restored one-row integration at three tabs. Temporary extra tabs were removed afterward.
-- Unavailable Back and Forward buttons are hidden outside toolbar customization. With neither history direction available, both disappeared; navigating to another URL revealed Back only; returning to the initial URL revealed Forward only. The integrated tab reserve adjusts by 36px per available history action, reclaiming the hidden controls' space.
+- History arrows use paired visibility per user correction: hide both only when neither direction is available; otherwise show both, retaining the native disabled state for the unavailable direction. The integrated tab reserve is 0px or 72px for the pair. Live checks confirmed both absent on a fresh tab, both present with Back enabled/Forward disabled, and both present with Back disabled/Forward enabled.
 
 Screenshots were visually inspected in the conversation; exported evidence artifacts have not been saved. Coordinate dragging returned noWindowsAvailable, so the native Window menu was used for resizing.
 

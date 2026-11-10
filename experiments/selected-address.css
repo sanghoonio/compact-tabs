@@ -12,9 +12,6 @@
         align-items: center;
         --ct-history-width: 72px;
 
-        &:has(#back-button[disabled]), &:has(#forward-button[disabled]) {
-          --ct-history-width: 36px;
-        }
         &:has(#back-button[disabled]):has(#forward-button[disabled]) {
           --ct-history-width: 0px;
         }

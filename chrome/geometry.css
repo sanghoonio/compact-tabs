@@ -50,9 +50,9 @@
     background-color: var(--toolbar-bgcolor) !important;
   }
 
-  /* Unavailable history actions disappear and surrender their space.
+  /* History actions disappear as a pair only when neither is available.
    * Keep them visible in Customize Toolbar so the layout stays editable. */
-  :root:not([customizing]) :is(#back-button, #forward-button)[disabled] {
+  :root:not([customizing]) #nav-bar:has(#back-button[disabled]):has(#forward-button[disabled]) :is(#back-button, #forward-button) {
     display: none !important;
   }
 
