@@ -83,12 +83,18 @@
           padding: 0 !important;
           margin: 0 !important;
           min-width: 28px !important;
+          background: transparent !important;
+          box-shadow: none !important;
+          border-radius: 0 !important;
         }
         #stop-reload-button .toolbarbutton-icon {
           box-sizing: border-box !important;
           padding: 6px !important;
           width: 28px !important;
           height: 28px !important;
+          background: transparent !important;
+          box-shadow: none !important;
+          border-radius: 0 !important;
         }
 
         #nav-bar > .titlebar-spacer { display: none !important; }
@@ -127,6 +133,33 @@
           padding-inline-end: 28px !important;
           --urlbar-border-radius: var(--ct-radius) !important;
           --urlbar-background-border-radius: var(--ct-radius) !important;
+          --urlbar-box-background-color: transparent !important;
+          --urlbar-box-background-color-hover: transparent !important;
+          --urlbar-box-background-color-active: transparent !important;
+          --urlbar-box-background-color-focus: transparent !important;
+        }
+
+        /* Keep identity labels, status colors and keyboard focus treatment;
+         * strip only the nested button/pill surfaces, not their spacing. */
+        #urlbar :is(.identity-box-button, #trust-icon-container,
+          #tracking-protection-icon-container, .urlbar-page-action,
+          .searchmode-switcher, #urlbar-search-mode-indicator) {
+          background: transparent !important;
+          box-shadow: none !important;
+          border-radius: 0 !important;
+        }
+
+        #urlbar .searchmode-switcher {
+          --button-background-color-muted: transparent !important;
+          --button-background-color-muted-hover: transparent !important;
+          --button-background-color-muted-active: transparent !important;
+          --button-background-color-muted-selected: transparent !important;
+        }
+
+        #urlbar .searchmode-switcher::part(button) {
+          background: transparent !important;
+          border-radius: 0 !important;
+          box-shadow: none !important;
         }
       }
     }

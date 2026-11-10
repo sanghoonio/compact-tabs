@@ -42,6 +42,13 @@
     padding-inline: 9px !important;
   }
 
+  /* Keep native target sizes; remove only the inset button surface. */
+  #tabbrowser-tabs[orient="horizontal"] .tab-close-button {
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
   #tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab[pinned] {
     padding-inline: 4px !important;
   }
