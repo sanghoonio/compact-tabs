@@ -1,0 +1,4 @@
+.DS_Store
+profiles/
+artifacts/local/
+*.log

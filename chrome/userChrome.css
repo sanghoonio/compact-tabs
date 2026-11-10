@@ -1,0 +1,5 @@
+/* Compact Tabs — Firefox-native controls, Sequoia-inspired proportions.
+ * Prototype: geometry.css is the safe two-row baseline. Opt-in experiments
+ * are installed separately by scripts/install-dev.py.
+ */
+@import url("geometry.css");

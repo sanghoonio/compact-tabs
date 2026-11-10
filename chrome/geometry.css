@@ -1,0 +1,57 @@
+/* All sizes are proposed Firefox values, not measured Safari points. */
+@-moz-document url("chrome://browser/content/browser.xhtml") {
+  :root {
+    --ct-row-height: 48px;
+    --ct-cell-height: 28px;
+    --ct-radius: 6px;
+    --ct-inactive: light-dark(rgb(0 0 0 / 0.045), rgb(255 255 255 / 0.055));
+    --ct-selected: light-dark(rgb(0 0 0 / 0.13), rgb(255 255 255 / 0.16));
+    --tab-min-height: var(--ct-cell-height) !important;
+    --tabstrip-min-height: var(--ct-row-height) !important;
+    --tab-border-radius: var(--ct-radius) !important;
+    --tab-block-margin: 10px !important;
+    --toolbarbutton-border-radius: var(--ct-radius) !important;
+  }
+
+  /* Deliberately avoid changing icon images, masks, labels or security UI. */
+  #tabbrowser-tabs[orient="horizontal"] {
+    --tab-min-width: 76px !important;
+    --tab-max-width: 160px !important;
+  }
+
+  #tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab {
+    padding-inline: 6px !important;
+  }
+
+  #tabbrowser-tabs[orient="horizontal"] .tab-background {
+    min-height: var(--ct-cell-height) !important;
+    border-radius: var(--ct-radius) !important;
+    background: var(--ct-inactive) !important;
+    box-shadow: none !important;
+  }
+
+  #tabbrowser-tabs[orient="horizontal"] .tab-background:is([selected], [multiselected]) {
+    background: var(--ct-selected) !important;
+  }
+
+  #tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:hover .tab-background:not([selected]) {
+    background: color-mix(in srgb, var(--ct-selected) 55%, var(--ct-inactive)) !important;
+  }
+
+  #tabbrowser-tabs[orient="horizontal"] .tab-content {
+    padding-inline: 9px !important;
+  }
+
+  #tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab[pinned] {
+    padding-inline: 4px !important;
+  }
+
+  #TabsToolbar {
+    background-color: var(--toolbar-bgcolor) !important;
+  }
+
+  /* Keep native focus outlines and window-state behavior. */
+  #tabbrowser-tabs[orient="horizontal"] .tab-background:-moz-window-inactive {
+    opacity: 0.72;
+  }
+}
