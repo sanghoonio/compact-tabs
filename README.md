@@ -41,6 +41,8 @@ Controls inside tabs use flat, transparent button surfaces without nested pill o
 
 Tab hover preview cards are suppressed by CSS. Tabs and the adjacent New Tab button use the shared `--ct-tab-gap` (10px); the button retains its native toolbar placement so it can be moved later. List all tabs uses native navigation-toolbar padding for its hover/pressed background (32px in the inspected normal-density layout), rather than the smaller tab-toolbar sizing.
 
+The address input uses the same root font size as tab labels, overriding macOS Firefox’s larger address-bar text. Sidebar keeps native toolbar button sizing; the navigation group’s gap before the tabs is tightened separately. The bookmarks row shares the compact bar’s underlying theme background.
+
 When editing an address, the selected tab draws a single inset focus outline around the combined bar. Suggestions appear as a separate panel below it; the native expanding input background is suppressed in integrated mode to avoid clipping around Reload and Close.
 
 VPN is also a removable toolbar widget through Customize Toolbar. The shipped Extensions hub is marked non-removable, so this project hides it in CSS. To restore either button visually, remove its selector from the visibility rule in `chrome/geometry.css`, reinstall, and restart the development profile.

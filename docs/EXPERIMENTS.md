@@ -64,6 +64,8 @@ Live observations in Firefox 159.0.1:
 
 - Removed the early three-tab integration limit after opening a fourth tab reproduced a separate navigation row. Four-tab New Tab selection and opening a fifth tab now keep the real search input and toolbar icons in the selected tab. Entering example.com in the fifth tab navigated successfully; the added test tab was closed, leaving the user’s original four tabs. Native overflowing tab sets remain unverified. This supersedes the earlier four-tab fallback observations.
 
+- Corrected the sidebar spacing interpretation: restored its native icon padding/hover dimensions to match other toolbar controls and reduced the separate navigation-group-to-tabs reserve to 24px plus history width. Removed macOS Firefox’s 1.25em URL-bar font scaling in integrated mode, using the root/tab-label size and inherited input font. Tab and bookmarks rows now have transparent backgrounds over the same toolbox theme material. Restarted compact-tabs-dev and visually compared focused URL text with inactive labels, navigation with Back visible, and the bookmarks row on New Tab.
+
 Screenshots were visually inspected in the conversation; exported evidence artifacts have not been saved. Coordinate dragging returned noWindowsAvailable, so the native Window menu was used for resizing.
 
 ## Remaining verification and refinement
