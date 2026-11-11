@@ -39,7 +39,7 @@ In integrated mode, Reload/Stop sits at the trailing side of the selected addres
 
 Controls inside tabs use flat, transparent button surfaces without nested pill or hover backgrounds. Security, translation and Reload glyphs are 12px, comparable to the tab close glyph, while their click targets retain their previous sizes. Hover uses the system accent color, configured by `--ct-icon-hover-color` in `chrome/geometry.css`. Keyboard focus indicators and resting security status labels/colors are preserved.
 
-Tab hover preview cards are suppressed by CSS. Tabs and the adjacent New Tab button use the shared `--ct-tab-gap` (6px); the button retains its native toolbar placement so it can be moved later. List all tabs uses native navigation-toolbar padding for its hover/pressed background (32px in the inspected normal-density layout), rather than the smaller tab-toolbar sizing.
+Tab hover preview cards are suppressed by CSS. Tabs and the adjacent New Tab button use the shared `--ct-tab-gap` (8px); the button retains its native toolbar placement so it can be moved later. List all tabs uses native navigation-toolbar padding for its hover/pressed background (32px in the inspected normal-density layout), rather than the smaller tab-toolbar sizing.
 
 When editing an address, the selected tab draws a single inset focus outline around the combined bar. Suggestions appear as a separate panel below it; the native expanding input background is suppressed in integrated mode to avoid clipping around Reload and Close.
 
