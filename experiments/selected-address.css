@@ -140,6 +140,35 @@
           --urlbar-box-background-color-hover: transparent !important;
           --urlbar-box-background-color-active: transparent !important;
           --urlbar-box-background-color-focus: transparent !important;
+          --urlbar-background-overhang-open: 0px !important;
+          --urlbar-input-growth-open-inline: 0px !important;
+          --urlbar-input-growth-open-block: 0px !important;
+          --urlbar-input-container-outline-open: none !important;
+          --urlbar-input-container-outline-open-focused: none !important;
+        }
+
+        /* The selected tab owns the combined surface and its focus outline.
+         * Firefox's joint input/suggestions background otherwise grows above
+         * the toolbar and ends partway through Reload/Close, making a clipped
+         * second tab shape. Keep the actual input, detach only that painting. */
+        #urlbar .urlbar-background { display: none !important; }
+        #urlbar .urlbar-input-container {
+          outline: none !important;
+          border-color: transparent !important;
+        }
+        &:has(#urlbar[focused]) .tabbrowser-tab[selected] .tab-background {
+          outline: 2px solid var(--toolbar-field-border-color-focus, var(--focus-outline-color)) !important;
+          outline-offset: -2px !important;
+        }
+
+        #urlbar .urlbarView {
+          margin: 6px 0 0 !important;
+        }
+        #urlbar .urlbarView-background {
+          inset: 0 !important;
+          clip-path: none !important;
+          border-radius: var(--ct-radius) !important;
+          border: 1px solid var(--panel-border-color) !important;
         }
 
         /* Keep identity labels, status colors and keyboard focus treatment;
