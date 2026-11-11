@@ -1,12 +1,12 @@
 /* Experimental Safari-style integration using the REAL Firefox URL bar.
- * Deliberately limited to wide windows with up to three ordinary sibling tabs.
+ * Deliberately limited to wide windows with ordinary tabs; native scrolling handles overflow.
  * Other states retain the native two-row layout plus geometry.css.
  */
 @-moz-document url("chrome://browser/content/browser.xhtml") {
   @supports (anchor-name: --ct-selected) and (left: anchor(left)) {
     @media (min-width: 1100px) and (-moz-platform: macos) {
       :root:not([customizing], [inFullscreen], [inDOMFullscreen])
-        :is(#navigator-toolbox):has(#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab[selected]:not([pinned])):not(:has(#tabbrowser-tabs tab-group, #tabbrowser-tabs .tabbrowser-tab ~ .tabbrowser-tab ~ .tabbrowser-tab ~ .tabbrowser-tab)) {
+        :is(#navigator-toolbox):has(#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab[selected]:not([pinned])):not(:has(#tabbrowser-tabs tab-group)) {
         display: grid !important;
         grid-template-columns: minmax(0, 1fr);
         align-items: center;

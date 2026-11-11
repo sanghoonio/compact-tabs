@@ -8,7 +8,7 @@ The priorities are layout, spacing, and visual balance. Firefox icons and their 
 
 Early prototype, tested in Firefox 159.0.1 on macOS 15.7.4. The isolated `compact-tabs-dev` profile currently runs the experimental `selected-address` mode: the real Firefox address field follows the selected tab in one row. Native Firefox icons, site identity controls, address editing and suggestions remain in use. Your regular profile has not had theme CSS installed.
 
-This is a bounded proof of concept, not a finished daily-use theme. Integration is limited to wide windows with up to three ungrouped sibling tabs and an ordinary selected tab. Narrow windows, four or more ordinary tabs, grouped tabs, pinned selections, fullscreen and customization fall back to the geometry baseline. Pinned, grouped, fullscreen and customization behavior still need live verification.
+This is a bounded proof of concept, not a finished daily-use theme. Integration is limited to wide windows with ungrouped tabs and an ordinary selected tab. Opening additional ordinary tabs keeps the integrated address field; four and five tabs have been checked live. Large overflowing tab sets still need verification. Narrow windows, grouped tabs, pinned selections, fullscreen and customization fall back to the geometry baseline. Pinned, grouped, fullscreen and customization behavior still need live verification.
 
 ## Try the development build
 

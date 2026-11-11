@@ -62,13 +62,15 @@ Live observations in Firefox 159.0.1:
 
 - Refined spacing to 10px between tab surfaces and before New Tab, preserving inactive surface width. Trailing action slots are now 20px, with 12px page-action glyphs including Reader Mode and translation. The translation locale badge is reduced to 16px with compact margins; its active multi-part button retains automatic width. Reader Mode and translation were visually checked together on French Wikipedia after restarting the dev profile. The translated badge state remains unverified. Account remains before List All Tabs and the menu, as requested.
 
+- Removed the early three-tab integration limit after opening a fourth tab reproduced a separate navigation row. Four-tab New Tab selection and opening a fifth tab now keep the real search input and toolbar icons in the selected tab. Entering example.com in the fifth tab navigated successfully; the added test tab was closed, leaving the user’s original four tabs. Native overflowing tab sets remain unverified. This supersedes the earlier four-tab fallback observations.
+
 Screenshots were visually inspected in the conversation; exported evidence artifacts have not been saved. Coordinate dragging returned noWindowsAvailable, so the native Window menu was used for resizing.
 
 ## Remaining verification and refinement
 
 Pinned selections, tab groups, fullscreen, customization, dark appearance, tab drag/reorder, unusual site identity/permission indicators, and enlarged text remain unverified. Right-clicking the active address area opens the URL context menu, as expected for a real input; full selected-tab context/drag affordances need review. The layout is still visually left weighted at low tab counts and retains Firefox's default toolbar palette; center balance and neutral materials are the next design pass.
 
-The theme intentionally falls back rather than offering compact integration for large tab sets at this stage. No claim of historical Safari 18 pixel fidelity is made.
+The theme no longer falls back solely based on ordinary tab count; large overflowing tab sets still require validation. No claim of historical Safari 18 pixel fidelity is made.
 
 ## Toolbar source details
 
