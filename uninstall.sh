@@ -9,7 +9,8 @@
 # Removes chrome/compact-tabs/ and the theme's blocks in userChrome.css and
 # user.js, deleting either file if nothing else is left in it. With Firefox
 # closed, it also clears the theme's prefs from prefs.js so Firefox's defaults
-# return; the stylesheet pref stays on if other custom CSS remains.
+# return; the stylesheet pref stays on if other custom CSS remains, and the
+# bookmark hint count is kept.
 set -euo pipefail
 REPO="$(cd "$(dirname "$0")" && pwd)"
 . "$REPO/scripts/common.sh"
@@ -45,7 +46,10 @@ remove_block "$PROFILE_DIR/user.js" "$JS_BEGIN" "$JS_END"
 rmdir "$CHROME" 2>/dev/null || true
 
 # Firefox keeps applied prefs in prefs.js after user.js stops setting them.
-names="$(pref_names "$REPO/user.js" "$REPO/scripts/dev-prefs.js")"
+# The bookmark hint count is left as is: Firefox only ever counts it up, and
+# resetting it would bring the "Saved to bookmarks" note back.
+names="$(pref_names "$REPO/user.js" "$REPO/scripts/dev-prefs.js" |
+  grep -vx 'browser.bookmarks.editDialog.confirmationHintShowCount' || true)"
 if [ -f "$CHROME/userChrome.css" ] || [ -f "$CHROME/userContent.css" ]; then
   names="$(printf '%s\n' "$names" | grep -vx 'toolkit.legacyUserProfileCustomizations.stylesheets' || true)"
 fi

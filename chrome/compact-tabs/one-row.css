@@ -446,8 +446,7 @@
           }
           /* Site-info buttons moved to the trailing group use the same 20px
            * pitch; they can carry a text label, so only the minimum is fixed. */
-          #urlbar :is(#trust-icon-container, #tracking-protection-icon-container,
-            #identity-icon-box, #identity-permission-box, #notification-popup-box) {
+          #urlbar :is(#trust-icon-container, #tracking-protection-icon-container, #identity-icon-box) {
             min-width: var(--ct-tab-action-width) !important;
             padding-inline: calc((var(--ct-tab-action-width) - 12px) / 2) !important;
             margin-inline: 0 !important;
@@ -458,6 +457,10 @@
            * the text and the trailing icons. */
           #urlbar > .urlbar-input-container {
             column-gap: 0 !important;
+            /* Reload sits just outside the field, so the last icon must end
+             * at the field's edge to keep the same 20px spacing to it. */
+            padding-inline-end: 0 !important;
+            border-inline-end-width: 0 !important;
           }
           #urlbar > .urlbar-input-container > .urlbar-input-box {
             margin-inline-end: var(--urlbar-component-gap) !important;
@@ -486,16 +489,20 @@
               display: none !important;
             }
           }
-          /* Permission, sharing and blocked-permission icons: 12px glyphs, each
-           * further icon in the same box on the 20px pitch. */
+          /* Permission, sharing, blocked-permission and notification icons:
+           * each 12px glyph carries its own 20px slot. The permission box
+           * always holds two (often empty) inner boxes, so a flex gap there
+           * would add space after the last visible icon. */
+          #urlbar :is(#identity-permission-box, #blocked-permissions-container, #notification-popup-box) {
+            min-width: 0 !important;
+            padding-inline: 0 !important;
+            margin-inline: 0 !important;
+            column-gap: 0 !important;
+          }
           #urlbar :is(#permissions-granted-icon, .sharing-icon, .blocked-permission-icon, .notification-anchor-icon) {
             width: 12px !important;
             height: 12px !important;
-            margin-inline-start: 0 !important;
-          }
-          /* A flex gap applies only between icons that are actually shown. */
-          #urlbar :is(#identity-permission-box, #blocked-permissions-container, #notification-popup-box) {
-            column-gap: calc(var(--ct-tab-action-width) - 12px) !important;
+            margin-inline: calc((var(--ct-tab-action-width) - 12px) / 2) !important;
           }
 
           #urlbar-container {
@@ -641,6 +648,8 @@
           #urlbar :is(#trust-icon-container, #identity-icon-box,
             #tracking-protection-icon-container):is(:hover, [open], :focus-visible)
             :is(#trust-icon, #identity-icon, #tracking-protection-icon),
+          #urlbar #identity-permission-box:is(:hover, [open], :focus-visible) :is(#permissions-granted-icon, .sharing-icon),
+          #urlbar :is(.blocked-permission-icon, .notification-anchor-icon):is(:hover, [open], :focus-visible),
           #urlbar :is(.urlbar-page-action, #urlbar-revert-button-container):is(:hover, [open], :focus-visible, :focus-within) > .urlbar-icon,
           #urlbar .urlbar-go-button:is(:hover, :focus-visible),
           #stop-reload-button > toolbarbutton:is(:hover, :focus-visible) > .toolbarbutton-icon {

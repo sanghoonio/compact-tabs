@@ -20,7 +20,7 @@ The installer lists your Firefox profiles and asks which one to use. To skip the
 ./uninstall.sh
 ```
 
-Quit Firefox first. The uninstaller then also resets the theme's preferences to Firefox's defaults. If Firefox is running, it removes the theme and asks you to quit and run it again.
+Quit Firefox first. The uninstaller then also resets the theme's preferences to Firefox's defaults, except the bookmark message count, so the "Saved to bookmarks" message stays off. If Firefox is running, it removes the theme and asks you to quit and run it again.
 
 ## What the installer changes
 
