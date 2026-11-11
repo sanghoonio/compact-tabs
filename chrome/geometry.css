@@ -10,7 +10,8 @@
     --ct-toolbar-inner-padding: var(--toolbarbutton-padding-inner, 8px);
     --ct-toolbar-plate-size: calc(16px + 2 * var(--ct-toolbar-inner-padding));
     --ct-icon-hover-color: AccentColor;
-    --ct-close-hover-color: light-dark(var(--color-red-70), var(--color-red-20));
+    --ct-close-hover-color: light-dark(var(--color-red-50), var(--color-red-20));
+    --ct-tab-font-size: calc(1rem + 2pt);
     --ct-inactive: light-dark(rgb(0 0 0 / 0.045), rgb(255 255 255 / 0.055));
     --ct-selected: light-dark(rgb(0 0 0 / 0.13), rgb(255 255 255 / 0.16));
     --tab-min-height: var(--ct-cell-height) !important;
@@ -28,6 +29,10 @@
 
   #tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab {
     padding-inline: var(--ct-tab-inset) !important;
+  }
+
+  #tabbrowser-tabs[orient="horizontal"] .tab-label {
+    font-size: var(--ct-tab-font-size) !important;
   }
 
   /* Equal surface-to-surface gaps, including the adjacent New Tab button.

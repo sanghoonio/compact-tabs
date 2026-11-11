@@ -153,7 +153,7 @@
 
         #urlbar {
           /* macOS Firefox otherwise enlarges the URL bar to 1.25em. */
-          font-size: 1rem !important;
+          font-size: var(--ct-tab-font-size) !important;
           font-family: inherit !important;
           font-weight: normal !important;
           width: 100% !important;
