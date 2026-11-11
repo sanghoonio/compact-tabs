@@ -37,13 +37,22 @@
           /* Sound indicator slot before Reload while the selected tab plays,
            * is muted or has blocked media. */
           --ct-tab-audio-width: 0px;
+          /* Space kept for the traffic lights. In macOS fullscreen they never
+           * sit in this row: on reveal, macOS draws its own title bar strip
+           * with them above the toolbar. So in fullscreen the leading group
+           * moves to the window edge, inset like the menu button on the
+           * right, and the tabs shift with it. */
+          --ct-lead-shift: 0px;
+          :root[inFullscreen] & {
+            --ct-lead-shift: 79px;
+          }
           /* Reserves balance the tab strip about the window centre: leading
            * covers Sidebar plus history, trailing New Tab, List All Tabs, menu.
            * The leading constant is calibrated from a live screenshot (one
            * 471px tab, 1178px window): 85px left the tab 19.5px left of
            * centre, so it is 39px less. History, spacing and extra buttons
            * appear on both sides of the balance and cancel out. */
-          --ct-strip-left-reserve: calc(46px + var(--ct-toolbar-button-size) + var(--ct-navigation-tab-spacing) + var(--ct-history-width));
+          --ct-strip-left-reserve: calc(46px - var(--ct-lead-shift) + var(--ct-toolbar-button-size) + var(--ct-navigation-tab-spacing) + var(--ct-history-width));
           --ct-strip-right-reserve: calc(3 * var(--ct-toolbar-button-size) - 30px + var(--ct-navigation-tab-spacing));
           /* Suggestions panel, estimated from a Safari screenshot on Sequoia. */
           --ct-suggestions-overhang: 6px;
@@ -117,7 +126,7 @@
              * Extra trailing buttons shrink both sides equally, so the tabs stay
              * centred on the window. */
             margin-inline:
-              calc(var(--ct-toolbar-button-size) - 32px + var(--ct-navigation-tab-spacing) + var(--ct-history-width) + var(--ct-trailing-extra) + var(--ct-private-extra))
+              calc(var(--ct-toolbar-button-size) - 32px - var(--ct-lead-shift) + var(--ct-navigation-tab-spacing) + var(--ct-history-width) + var(--ct-trailing-extra) + var(--ct-private-extra))
               calc(3 * var(--ct-toolbar-button-size) + 6px + var(--ct-navigation-tab-spacing) + var(--ct-trailing-extra) + var(--ct-private-extra)) !important;
             min-width: 0 !important;
           }
@@ -126,7 +135,7 @@
             background: transparent !important;
             box-shadow: none !important;
             border: 0 !important;
-            padding-inline: 83px 4px !important;
+            padding-inline: calc(83px - var(--ct-lead-shift)) 4px !important;
             pointer-events: none;
             z-index: 3;
             display: flex !important;

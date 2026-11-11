@@ -57,10 +57,11 @@ Set `compact-tabs.two-rows` to `true` in `about:config` (create it as a boolean)
 - After a window is widened, the scroll arrows can stay until Firefox rechecks whether the tabs overflow.
 - In a very narrow selected tab, many permission icons can run into Reload, because those icons never hide.
 - Safari moves its trailing buttons into a `»` menu in narrow windows. CSS cannot move buttons into a menu, and Firefox's own overflow menu never picks up these buttons.
+- In fullscreen, Safari shows the window buttons inside its toolbar row when the menu bar slides down. Firefox shows them in a separate strip above the toolbar, which CSS cannot change, so the row keeps its full width instead of making room for them.
 - Safari shows only the domain until you click into the field. Firefox can only hide `https://` and `www.`.
 - A background tab that plays sound and has shrunk to its favicon may cut off its sound button.
 - The layout assumes Firefox's default toolbar buttons: Sidebar, Back and Forward on the left, New Tab, List All Tabs and the menu on the right. Other toolbar customizations may overlap.
-- Not yet checked by eye: the alignment of the group line with the group name and counter, the spacing around `@` search mode labels, the selected tab's background in an inactive window while tabs scroll, the window buttons revealed in fullscreen, and dragging the window by empty space in the row.
+- Not yet checked by eye: the alignment of the group line with the group name and counter, the spacing around `@` search mode labels, the selected tab's background in an inactive window while tabs scroll, and dragging the window by empty space in the row.
 
 ## Files
 
