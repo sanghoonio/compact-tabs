@@ -10,6 +10,7 @@
     --ct-toolbar-inner-padding: var(--toolbarbutton-padding-inner, 8px);
     --ct-toolbar-plate-size: calc(16px + 2 * var(--ct-toolbar-inner-padding));
     --ct-icon-hover-color: AccentColor;
+    --ct-close-hover-color: light-dark(var(--color-red-70), var(--color-red-20));
     --ct-inactive: light-dark(rgb(0 0 0 / 0.045), rgb(255 255 255 / 0.055));
     --ct-selected: light-dark(rgb(0 0 0 / 0.13), rgb(255 255 255 / 0.16));
     --tab-min-height: var(--ct-cell-height) !important;
@@ -67,7 +68,7 @@
   }
 
   #tabbrowser-tabs[orient="horizontal"] .tab-close-button:hover {
-    color: var(--ct-icon-hover-color) !important;
+    color: var(--ct-close-hover-color) !important;
     fill: currentColor !important;
     fill-opacity: 1 !important;
   }
