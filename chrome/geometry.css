@@ -6,9 +6,20 @@
     --ct-radius: 6px;
     --ct-tab-gap: 10px;
     --ct-tab-inset: calc(var(--ct-tab-gap) / 2);
-    /* Resolve at the root, before TabsToolbar substitutes its tab-sized padding. */
-    --ct-toolbar-inner-padding: var(--toolbarbutton-padding-inner, 8px);
+    /* Tab content padding, and how far the selected tab's 20px Close is
+     * pulled into it in integrated mode (glyph 6px from the surface edge). */
+    --ct-tab-content-padding: 9px;
+    --ct-tab-close-pull: 3px;
+    /* Toolbar hover squares are as tall as a tab: 16px icons, 6px padding.
+     * Firefox already sizes tab-row buttons this way; apply it everywhere. */
+    --ct-toolbar-inner-padding: calc((var(--ct-cell-height) - 16px) / 2);
+    --toolbarbutton-padding-inner: var(--ct-toolbar-inner-padding) !important;
     --ct-toolbar-plate-size: calc(16px + 2 * var(--ct-toolbar-inner-padding));
+    /* Visible gap between adjacent hover squares, split as outer padding. */
+    --ct-toolbar-button-gap: 8px;
+    --toolbarbutton-padding-outer: calc(var(--ct-toolbar-button-gap) / 2) !important;
+    /* One button's footprint in the row, square plus outer padding. */
+    --ct-toolbar-button-size: calc(var(--ct-toolbar-plate-size) + 2 * var(--toolbarbutton-padding-outer));
     --ct-icon-hover-color: AccentColor;
     --ct-close-hover-color: light-dark(var(--color-red-50), var(--color-red-20));
     --ct-tab-font-size: calc(1rem + 1pt);
@@ -19,6 +30,28 @@
     --tab-border-radius: var(--ct-radius) !important;
     --tab-margin-block: 10px !important;
     --toolbarbutton-border-radius: var(--ct-radius) !important;
+    /* Dropdowns: Nova rounds panels to 24px and item highlights to 16px
+     * pills. Use the tab radius for panels and a slightly smaller corner
+     * for highlights, as in the address suggestions. */
+    --ct-menu-item-radius: 5px;
+    --popup-border-radius: var(--ct-radius) !important;
+    --panel-menuitem-border-radius: var(--ct-menu-item-radius) !important;
+  }
+
+  /* menu.css re-declares the item radius on every popup. */
+  :is(menupopup, panel) {
+    --menuitem-border-radius: var(--ct-menu-item-radius) !important;
+  }
+
+  /* Separators run the full panel width. Firefox insets them through
+   * --panel-separator-padding, which resolves at :root, so override it on
+   * each separator. panel-list draws its <hr> from shadow-DOM !important
+   * rules that read this variable, so the variable is the only handle. */
+  :is(panel toolbarseparator, menupopup menuseparator, panel-list > hr) {
+    --panel-separator-padding: var(--panel-separator-padding-block) 0 !important;
+  }
+  menupopup menuseparator {
+    margin-inline: 0 !important;
   }
 
   /* Deliberately avoid changing icon images, masks, labels or security UI. */
@@ -29,6 +62,34 @@
 
   #tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab {
     padding-inline: var(--ct-tab-inset) !important;
+  }
+
+  /* A collapsed tab group shrinks its hidden tabs to zero width; the tab
+   * inset above would otherwise leave each one as a 10px gap. */
+  #tabbrowser-tabs[orient="horizontal"] tab-group[collapsed] > .tabbrowser-tab:not([visuallyselected], [multiselected]),
+  #tabbrowser-tabs[orient="horizontal"] tab-group[collapsed][movingtabgroup] > .tabbrowser-tab {
+    padding-inline: 0 !important;
+  }
+
+  /* Tab groups: the label chip and "+N" counter match a tab cell (28px,
+   * --ct-radius) and keep the --ct-tab-gap spacing to their neighbours.
+   * Nova draws the label as a pill with one sharp corner. */
+  #tabbrowser-tabs[orient="horizontal"] {
+    --tab-group-counter-size: var(--ct-cell-height) !important;
+    /* The group line sits 3px under the tab surfaces rather than at the
+     * row's bottom edge, which the tall compact row leaves far below them. */
+    --tab-group-line-toolbar-border-distance: calc(var(--tab-margin-block) - 3px - var(--tab-group-line-thickness)) !important;
+  }
+  #tabbrowser-tabs[orient="horizontal"] .tab-group-label-container {
+    margin-inline-start: var(--ct-tab-inset) !important;
+    padding-inline-end: var(--ct-tab-inset) !important;
+  }
+  #tabbrowser-tabs[orient="horizontal"] :is(.tab-group-label, .tab-group-label-hover-highlight, .tab-group-overflow-count) {
+    border-radius: var(--ct-radius) !important;
+  }
+  #tabbrowser-tabs[orient="horizontal"] .tab-group-overflow-count-container {
+    padding-inline: var(--ct-tab-inset) !important;
+    margin-inline-end: 0 !important;
   }
 
   #tabbrowser-tabs[orient="horizontal"] .tab-label {
@@ -62,7 +123,7 @@
   }
 
   #tabbrowser-tabs[orient="horizontal"] .tab-content {
-    padding-inline: 9px !important;
+    padding-inline: var(--ct-tab-content-padding) !important;
   }
 
   /* Keep native target sizes; remove only the inset button surface. */
@@ -72,13 +133,34 @@
     border-radius: 0 !important;
   }
 
-  /* Remove the unused close target from layout so the title can expand. */
-  #tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([selected], :hover) .tab-close-button {
+  /* Safari-style Close at the leading edge, in the favicon's place: always
+   * shown on the selected tab; on other tabs it sits invisibly on top of
+   * the favicon and appears only while the cursor is over it. */
+  #tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned]) .tab-close-button {
+    display: flex !important;
+    order: -1;
+    /* Exactly the favicon's footprint (16px box plus its end margin), with
+     * the 12px glyph centred where the favicon is. */
+    width: var(--icon-size) !important;
+    height: var(--icon-size) !important;
+    padding: calc((var(--icon-size) - 12px) / 2) !important;
+    margin-inline: 0 var(--tab-icon-margin-inline-end) !important;
+  }
+  #tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned])[selected] .tab-icon-stack {
     display: none !important;
   }
-
-  #tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned]):is([selected], :hover) .tab-close-button {
-    display: flex !important;
+  /* Other tabs: the negative end margin lays the favicon over Close's box. */
+  #tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned], [selected]) .tab-close-button {
+    margin-inline: 0 calc(-1 * var(--icon-size)) !important;
+    position: relative;
+    z-index: 1;
+    opacity: 0;
+  }
+  #tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned], [selected]) .tab-close-button:hover {
+    opacity: 1;
+  }
+  #tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned], [selected]):has(.tab-close-button:hover) .tab-icon-stack {
+    visibility: hidden !important;
   }
 
   #tabbrowser-tabs[orient="horizontal"] .tab-close-button:hover {
@@ -91,22 +173,10 @@
     padding-inline: var(--ct-tab-inset) !important;
   }
 
+  /* Same translucent layer Firefox paints on the navigation toolbar,
+   * bookmarks toolbar and sidebar launcher, so the tab row matches them. */
   #TabsToolbar {
-    background-color: var(--toolbar-bgcolor) !important;
-  }
-
-  /* Use the native navigation metrics, not TabsToolbar's smaller tab metrics.
-   * Leave Back/Forward and all native hover/pressed color rules untouched. */
-  #alltabs-button {
-    --toolbarbutton-padding-inner: var(--ct-toolbar-inner-padding) !important;
-  }
-
-  #alltabs-button > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
-    box-sizing: border-box !important;
-    width: var(--ct-toolbar-plate-size) !important;
-    height: var(--ct-toolbar-plate-size) !important;
-    padding: var(--ct-toolbar-inner-padding) !important;
-    border-radius: var(--ct-radius) !important;
+    background-color: var(--toolbar-background-color) !important;
   }
 
   /* Each unavailable history action disappears and releases its space.
@@ -119,6 +189,27 @@
    * Manage extensions through the application menu or about:addons instead. */
   :root:not([customizing]) :is(#unified-extensions-button, #ipprotection-button, #fxa-toolbar-menu-button) {
     display: none !important;
+  }
+
+  /* No search-engine switcher in the address field. Firefox 160 ties it to
+   * browser.urlbar.scotchBonnet.enableOverride, which gates other address-bar
+   * features too, so hide it here. The switcher normally replaces the native
+   * search-mode label, so restore that label for @bookmarks, @wikipedia, etc. */
+  #urlbar .searchmode-switcher {
+    display: none !important;
+  }
+  #urlbar[searchmode] #urlbar-search-mode-indicator {
+    display: flex !important;
+  }
+
+  /* Address text comes first; site identity, security, tracking protection,
+   * permissions, the search-mode label, revert, go and page actions all
+   * follow it at the trailing end, in Firefox's own order. */
+  #urlbar > .urlbar-input-container > .urlbar-input-box {
+    order: -1;
+  }
+  #urlbar > .urlbar-input-container > :is(#identity-box, #trust-icon-container, #tracking-protection-icon-container, #urlbar-label-box, #urlbar-search-mode-indicator) {
+    margin-inline: 0 !important;
   }
 
   /* BookmarkingUI needs a nonzero anchor rect for the Cmd+D dialog.
@@ -146,8 +237,4 @@
     height: 12px !important;
   }
 
-  /* Keep native focus outlines and window-state behavior. */
-  #tabbrowser-tabs[orient="horizontal"] .tab-background:-moz-window-inactive {
-    opacity: 0.72;
-  }
 }

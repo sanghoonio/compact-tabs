@@ -1,69 +1,76 @@
 # Compact Tabs
 
-A Firefox theme project inspired by Safari 18's compact tab bar on macOS Sequoia, before Liquid Glass.
+A Firefox `userChrome.css` theme that recreates Safari's compact tab bar on macOS Sequoia (Safari 18, before Liquid Glass): one row, with the real Firefox address field living inside the selected tab. Layout, spacing and balance come from Safari; icons and behaviour stay Firefox's.
 
-The priorities are layout, spacing, and visual balance. Firefox icons and their meaning stay recognizable.
+Tested in Firefox 160.0 on macOS 15.7.4, in an isolated profile named `compact-tabs-dev`. Your regular profile has no theme CSS installed. It is pure CSS, with no privileged scripts.
 
-## Status
+## Install
 
-Early prototype, tested in Firefox 159.0.1 on macOS 15.7.4. The isolated `compact-tabs-dev` profile currently runs the experimental `selected-address` mode: the real Firefox address field follows the selected tab in one row. Native Firefox icons, site identity controls, address editing and suggestions remain in use. Your regular profile has not had theme CSS installed.
-
-This is a bounded proof of concept, not a finished daily-use theme. Integration is limited to wide windows with ungrouped tabs and an ordinary selected tab. Opening additional ordinary tabs keeps the integrated address field; four and five tabs have been checked live. Large overflowing tab sets still need verification. Narrow windows, grouped tabs, pinned selections, webpage/video fullscreen and customization fall back to native behavior plus the geometry baseline. macOS window fullscreen retains compact integration and centered tabs, checked live. The native window-button box is reserved in the compact row; its hover reveal placement remains unverified. Pinned, grouped and customization behavior still need live verification.
-
-## Try the development build
-
-The development profile already exists on the current Mac. Launch it separately:
+Launch the development profile on its own:
 
 ```sh
 /Applications/Firefox.app/Contents/MacOS/firefox -no-remote -P compact-tabs-dev
 ```
 
-The installer targets only the uniquely named `compact-tabs-dev` profile and refuses to overwrite an unmanaged stylesheet:
+Install into it, then restart only that profile:
 
 ```sh
-python3 scripts/install-dev.py --dry-run
-python3 scripts/install-dev.py --mode geometry
-python3 scripts/install-dev.py --mode single-row
-python3 scripts/install-dev.py --mode anchor-probe
-python3 scripts/install-dev.py --mode selected-address
+python3 scripts/install-dev.py --mode selected-address   # full theme, one row
+python3 scripts/install-dev.py --mode geometry           # same styling, Firefox's two rows
+python3 scripts/install-dev.py --dry-run                 # show what would change
+python3 scripts/install-dev.py --remove                  # roll back
 ```
 
-Choose one mode, then restart only that profile. Modes are alternatives, not cumulative. `selected-address` is the current installed mode; `geometry` is the installer's conservative default. Stylesheet loading requires `toolkit.legacyUserProfileCustomizations.stylesheets=true`, already set in the development profile's `user.js`.
+The installer only touches the profile named `compact-tabs-dev`, and writes two things there:
 
-- `geometry`: native two-row layout with proposed tab proportions.
-- `single-row`: experimental shared toolbar row at window widths of at least 1150 CSS pixels, with native layout fallback for narrower windows, fullscreen, customization and vertical tabs.
-- `anchor-probe`: geometry plus a pink marker that was observed following tab selection. It does not reposition the URL bar.
-- `selected-address`: the real address field anchored over a wider selected tab; native navigation controls remain at the leading edge and actions at the trailing edge. Applies at widths of at least 1100 CSS pixels within the limits above.
+- `chrome/userChrome.css`, which imports copies of the stylesheets from `chrome/compact-tabs/`. It refuses to overwrite a `userChrome.css` it did not create.
+- A block in `user.js` between `// BEGIN compact-tabs managed prefs` and `// END compact-tabs managed prefs`, holding `scripts/prefs.js`. Only that block is rewritten; other lines stay. If one of these prefs is also set elsewhere in `user.js`, it says so, and the block's value wins.
 
-In integrated mode, Reload/Stop sits at the trailing side of the selected address tab and follows selection. The bookmark star is hidden; Command-D and the Bookmarks menu remain available. Unavailable Back/Forward arrows hide independently. VPN and the Extensions hub are hidden by CSS, without changing VPN state or installed extensions; manage extensions through `about:addons`. List all tabs has a separate trailing slot beside the application menu.
+The prefs:
 
-Controls inside tabs use flat, transparent button surfaces without nested pill or hover backgrounds. Security, page-action (including Reader Mode and translation) and Reload glyphs are 12px, comparable to the tab close glyph, with a compact 20px horizontal slot for trailing page actions, Reload and Close in integrated mode. Hover uses the system accent color, configured by `--ct-icon-hover-color` in `chrome/geometry.css`; tab Close uses Firefox’s red palette (`--color-red-50` in light appearance, `--color-red-20` in dark appearance) via `--ct-close-hover-color`. The translated-language badge is 16px and retains its status indication. Keyboard focus indicators and resting security status labels/colors are preserved.
+- `toolkit.legacyUserProfileCustomizations.stylesheets=true`: load `userChrome.css` at all.
+- `browser.urlbar.suggest.engines=false`: no "Search with <engine>" row when typed text matches an engine name.
+- `browser.urlbar.trimWww=true`: `wikipedia.org` instead of `www.wikipedia.org`. Firefox 160 already hides `https://` and shows the full address again when you click in.
+- `browser.tabs.dragDrop.createGroup.enabled=false`: holding a dragged tab over another reorders, never creates a group. Groups still come from the tab context menu.
+- `browser.bookmarks.editDialog.confirmationHintShowCount=3`: the "Saved to bookmarks" note never opens. Firefox anchors it to the menu button at the window's right edge, where it runs off the window.
+- `devtools.chrome.enabled=true`, `devtools.debugger.remote-enabled=true`: development only, for the Browser Toolbox (Tools > Browser Tools), whose Inspector shows Firefox's own interface.
 
-Close buttons appear only on selected or hovered tabs; other tab titles reclaim their space. Tab hover preview cards are suppressed by CSS. Tab surfaces use the shared `--ct-tab-gap` (10px); in integrated mode New Tab occupies the former Account slot in the fixed right-side group, followed by List All Tabs and the application menu. Account is hidden outside customization. List all tabs uses native navigation-toolbar padding for its hover/pressed background (32px in the inspected normal-density layout), rather than the smaller tab-toolbar sizing.
+`--remove` deletes the entry stylesheet and the `user.js` block. If Firefox is not running that profile, it also clears those prefs from `prefs.js` so Firefox's defaults return; otherwise quit Firefox and run it again. Copied CSS and all other profile data stay.
 
-Tab labels and the address input share `--ct-tab-font-size` (root size + 1pt), overriding macOS Firefox’s larger address-bar text. Sidebar keeps native toolbar button sizing; the navigation group’s gap before the tabs is tightened separately. The bookmarks row shares the compact bar’s underlying theme background and uses 12px icons. Integrated mode uses a shared navigation-to-tab spacing value on both sides of the tab strip.
+## Files
 
-When editing an address, the selected tab draws a single inset focus outline around the combined bar. Suggestions appear as a separate panel below it; the native expanding input background is suppressed in integrated mode to avoid clipping around Reload and Close.
+- `chrome/geometry.css`: everything except the one-row layout. Tab proportions, Close placement, address-field icon order, toolbar button sizing, dropdowns, hidden controls. Applies in both modes.
+- `experiments/selected-address.css`: the one-row layout. Only active on macOS, with CSS anchor positioning, outside Customize Toolbar and webpage/video fullscreen.
+- `scripts/install-dev.py`, `scripts/prefs.js`: installer and prefs.
+- `docs/`: [brief](docs/BRIEF.md), [Safari reference](docs/SAFARI-REFERENCE.md), [Firefox notes](docs/FIREFOX-NOTES.md), [manual checks](docs/VALIDATION.md).
+- `plans/`: dated plans and implementation logs.
 
-VPN is also a removable toolbar widget through Customize Toolbar. The shipped Extensions hub is marked non-removable, so this project hides it in CSS. To restore either button visually, remove its selector from the visibility rule in `chrome/geometry.css`, reinstall, and restart the development profile.
+## Layout
 
-Rollback:
+**Row.** Traffic lights, Sidebar, Back/Forward, the tabs, then New Tab, List All Tabs and the application menu, all in one 48px row. Tab surfaces are 28px tall with 6px corners and 10px gaps. Back and Forward each hide when unavailable. Downloads and up to three pinned extension buttons line up left of New Tab when shown, and the tabs narrow equally on both sides to stay centred. Account, VPN, the Extensions button and the bookmark star are hidden by CSS (⌘D and the Bookmarks menu still work; extensions are in `about:addons`). Customize Toolbar, webpage/video fullscreen and popup windows (sign-in windows, `window.open` without a toolbar, extension popups) use Firefox's normal layout. In private windows, Firefox's private-browsing button sits left of New Tab. macOS window fullscreen keeps the compact row.
 
-```sh
-python3 scripts/install-dev.py --remove
-```
+**Tabs.** Tabs are centred on the window. The selected tab is 300–480px wide (minimum 25% of the window when narrow); a lone tab gets about 40% of the window. Other tabs shrink to a 44px favicon cell; once fewer than about two title characters would show, the title is dropped and the favicon centred. Close replaces the favicon at the leading edge, as in Safari: always on the selected tab, and on other tabs only while the cursor is over the favicon. Tab hover previews are hidden.
 
-Restart the development profile. This removes only the managed entry stylesheet; profile data and copied CSS assets remain. This is a local custom stylesheet project, not an Add-ons Store theme.
+**Address field.** The real `#urlbar` sits over the selected tab, after its Close button, with Reload/Stop at the tab's trailing edge. While the tab plays sound, is muted or has blocked media, Firefox's sound button sits just before Reload; clicking it mutes or unmutes. It follows selection. Text comes first; site identity, tracking protection, permissions and page actions sit at the trailing end on a 20px pitch with 12px glyphs. Icons never squeeze: the text gives way first, then page actions other than Reader View hide below a 110px field, and Reader View below 90px (the field excludes Reload and the sound button); the shield and permission icons always stay. The search-engine switcher is hidden; `@` shortcuts still enter search modes. Editing draws one focus outline round the whole tab. Suggestions open 4px below the tab, centred on it and 6px wider each side, with dense rows and an accent-coloured selection (spacing in the `--ct-suggestions-*` variables).
 
-## One workflow
+**Narrow windows.** The one-row layout applies at every width. Spacing scales with the window: the gap between each button group and the tabs runs from 8px at 600px to 24px at 1200px, and the padding that centres the tabs on the window grows from 0 at 600px until fully balanced. When tabs still do not fit, Firefox's scroll arrows appear. The selected tab then stays sticky inside the visible strip, painted with the toolbar material so it covers tabs scrolled beneath it, which keeps the address field and Reload fully visible.
 
-1. Survey the Sequoia Safari compact toolbar and record sources, estimates, and unknowns.
-2. Assess Firefox layout mechanisms and relevant prior art.
-3. Define reference captures and a small visual/interaction acceptance matrix.
-4. Consolidate findings into a prototype brief, including the selected-tab/address-field decision.
-5. Build and inspect a Firefox prototype in an isolated profile.
-6. Refine spacing and balance against references, then document installation and rollback.
+**Pinned tabs.** Pins sit at the leading edge with a 1×16px divider after the last one. A selected pin widens like any selected tab, with the address field and no Close. While a pin is selected, ordinary tabs line up right after the divider instead of centring, as Safari does.
 
-The first three steps are parallel research tracks within this single workflow. Implementation follows their synthesis.
+**Tab groups.** Groups stay in the row. The name chip and collapsed "+N" counter are 28px with 6px corners and tab gaps; the group's coloured line sits 3px below the tab surfaces.
 
-See [the project brief](docs/BRIEF.md) and [the workflow](docs/WORKFLOW.md).
+**Dragging.** While a tab is dragged, the address field and Reload hide and the selected tab shows its own title; they come back on drop. The centred row shifts by half a tab while one is lifted, since CSS cannot reserve the dragged tab's width.
+
+**Buttons and menus.** Every toolbar button's hover square is 28px (a 16px icon with 6px padding), 8px apart. Icon hover uses the system accent colour (`--ct-icon-hover-color`); Close hover uses Firefox's red (`--ct-close-hover-color`). Firefox-drawn dropdowns (application menu, List All Tabs, Downloads, in-page `panel-list` menus) use 6px panel corners, 5px item highlights and full-width separators. Context menus and the menu bar are native macOS menus.
+
+**Materials.** The tab and bookmarks rows use Firefox's translucent toolbar layer, the same as the sidebar launcher. Tab labels and address text share one size (root + 1pt). Background windows fade the whole compact row, as macOS fades a titlebar.
+
+## Known limits
+
+- **Scroll arrows can linger** after widening a window, until Firefox re-checks overflow.
+- **Many permission icons** in a very narrow selected tab can still run into Reload, because those icons never hide.
+- **No overflow menu.** Safari moves its trailing buttons into a `»` menu in narrow windows. CSS cannot move buttons into a menu, and Firefox's own overflow never fires for these fixed buttons.
+- **Domain only is not possible.** Safari shows just the domain until you click in; Firefox can only trim `https://` and `www.`.
+- **Sound in favicon-only tabs.** Firefox's sound button sits beside the favicon, so a playing background tab narrower than its favicon plus the button may clip it.
+- **Toolbar layout is assumed.** The offsets assume Sidebar, Back, Forward on the left and New Tab, List All Tabs, Menu on the right. Other customizations may collide.
+- **Not checked by eye yet:** the group line and chip alignment, `@`-mode label spacing, the sticky selected tab's backing in a background window, dark appearance, and the fullscreen traffic-light reveal.

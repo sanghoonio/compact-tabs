@@ -2,3 +2,4 @@
 profiles/
 artifacts/local/
 *.log
+__pycache__/

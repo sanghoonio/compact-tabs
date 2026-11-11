@@ -1,48 +1,35 @@
-# Prototype validation
+# Manual checks
 
-## Environment observed
+Run in `compact-tabs-dev` after installing and restarting. Environment: macOS 15.7.4, Firefox 160.0; reference Safari 26.3 in Compact mode.
 
-Read from application bundles and `sw_vers` on 2026-11-10:
+## Layout
 
-- macOS 15.7.4, build 24G517.
-- Firefox 159.0.1, build 15926.11.2.
-- Safari 26.3, build 20623.2.7.18.1.
-
-Installed Safari is newer than the design reference. Its toolbar must not be treated as evidence of Safari 18 styling merely because the OS is Sequoia.
-
-## Reference captures
-
-Compare reference Safari imagery, unmodified Firefox, and the prototype at equivalent logical window dimensions. Record display scale, browser version, appearance, window focus, toolbar configuration, and tab state. Reference screenshots may have unknown metadata; record those gaps rather than deriving exact values from them.
-
-Use a small initial set:
-
-| State | What to inspect |
+| State | Check |
 | --- | --- |
-| One tab, wide window | Toolbar height, vertical centers and empty-space balance |
-| Four ordinary tabs, wide window | Gaps, label alignment and active/inactive separation |
-| Same four tabs, narrow window | Compression, truncation and control collisions |
-| Pinned and ordinary tabs, one loading | Pin widths, loading indicator, close controls and alignment |
-| Long selected title, second window | Truncation, window focus and consistency |
+| One tab, wide window | Field about 40% of the window, centred; equal space either side |
+| Four tabs, wide | 10px gaps; selected tab 300–480px; group centred on the window |
+| Drag the window from 1200px to 600px | Spacing changes smoothly, no jumps; inactive tabs drop to centred favicons |
+| Many tabs, narrow | Scroll arrows appear; selected tab stays fully visible and covers tabs behind it; field and Reload never under an arrow |
+| Pin a tab, select it | One row; pin widens with the field, no Close; ordinary tabs sit right after the divider |
+| Select an ordinary tab with pins | Pin shrinks to a favicon cell; ordinary tabs centred |
+| Tab group from the context menu | Chip and "+N" match tab height; line 3px under tabs, level with chip and counter lines |
+| Downloads button visible | Sits left of New Tab without overlap; tabs stay centred |
+| Private window (⇧⌘P) | Purple private button left of New Tab; nothing under ☰; tabs centred |
+| Popup window (a site's sign-in popup) | Firefox's normal layout with a visible address field |
+| Background window | Whole row fades evenly, including the selected tab's backing when tabs scroll |
+| macOS window fullscreen | Compact row kept; traffic lights reveal inline |
+| Dark appearance | Contrast of tabs, field and dropdowns |
 
-Check representative wide and narrow states in both light and dark appearance. Add fullscreen and overflow checks before delivery.
+## Behaviour
 
-## Acceptance checks
-
-- Firefox icons remain recognizable and retain their meaning.
-- Controls, labels and favicons share deliberate vertical alignment.
-- Active tabs are immediately distinguishable without overwhelming the row.
-- Resizing does not overlap controls or make them unreachable.
-- Tabs compress and truncate predictably; pinned tabs remain identifiable.
-- Address editing, suggestions, site identity indicators, and Command-L work.
-- Tab selection, close, reorder, pinning and tab overflow continue to work.
-- Restart preserves the customization; disabling it restores the baseline.
-
-These checks establish usability. A claim of measured Safari resemblance additionally requires dated Safari 18 evidence and a comparison at known scale.
-
-## Development profile
-
-Create a separate profile through `about:profiles`, launch it, and verify its identity before any installation. Keep Sync off during iteration. Work with its Root Directory, placing the stylesheet at `chrome/userChrome.css`. Enable `toolkit.legacyUserProfileCustomizations.stylesheets` in that profile and restart.
-
-Rollback: rename/remove that stylesheet or disable the preference, then restart. Avoid deleting profile data as a rollback mechanism. No profile has been created or modified by this research workflow.
-
-Sources: [Mozilla profile management](https://support.mozilla.org/en-US/kb/profile-manager-create-remove-switch-firefox-profiles), [Mozilla advanced customization](https://support.mozilla.org/eu/kb/contributors-guide-firefox-advanced-customization), [Mozilla Configuration Editor](https://support.mozilla.org/en-US/kb/about-config-editor-firefox).
+- Selecting a tab moves the field and Reload to it; Reload works.
+- ⌘L selects the URL; one focus outline round the tab; suggestions open below it, centred.
+- `@bookmarks` shows the search-mode label with even spacing to the icons beside it.
+- Hover a background tab's favicon: Close appears only over the favicon; text does not shift.
+- Drag to reorder: field hides during the drag and returns to the selected tab on drop; no group is created.
+- Play a video: speaker before Reload on the selected tab; click mutes and shows the muted icon. Same on a selected pin.
+- Address shows `wikipedia.org` without `https://www.`; clicking in shows the full address.
+- Narrow selected tab: icons stay 20px apart; translate hides first, then Reader View.
+- ⌘D opens the bookmark dialog; no "Saved to bookmarks" note.
+- Customize Toolbar shows Firefox's normal layout; leaving it restores the compact row.
+- `install-dev.py --remove`, restart: stock Firefox returns.
