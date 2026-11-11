@@ -4,7 +4,7 @@
     --ct-row-height: 48px;
     --ct-cell-height: 28px;
     --ct-radius: 6px;
-    --ct-tab-gap: 8px;
+    --ct-tab-gap: 10px;
     --ct-tab-inset: calc(var(--ct-tab-gap) / 2);
     /* Resolve at the root, before TabsToolbar substitutes its tab-sized padding. */
     --ct-toolbar-inner-padding: var(--toolbarbutton-padding-inner, 8px);
@@ -22,7 +22,7 @@
   /* Deliberately avoid changing icon images, masks, labels or security UI. */
   #tabbrowser-tabs[orient="horizontal"] {
     --tab-min-width: 76px !important;
-    --tab-max-width: 156px !important;
+    --tab-max-width: 158px !important;
   }
 
   #tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab {

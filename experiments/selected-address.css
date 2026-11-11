@@ -11,7 +11,7 @@
         grid-template-columns: minmax(0, 1fr);
         align-items: center;
         --ct-history-width: 72px;
-        --ct-tab-action-width: 22px;
+        --ct-tab-action-width: 20px;
 
         &:has(#back-button[disabled]), &:has(#forward-button[disabled]) {
           --ct-history-width: 36px;
@@ -120,12 +120,12 @@
         /* Use the same compact horizontal pitch for the trailing controls. */
         .tabbrowser-tab[selected] .tab-close-button {
           width: var(--ct-tab-action-width) !important;
-          height: 22px !important;
-          padding: 5px !important;
+          height: var(--ct-tab-action-width) !important;
+          padding: calc((var(--ct-tab-action-width) - 12px) / 2) !important;
           margin-inline-end: -3px !important;
         }
 
-        #urlbar #page-action-buttons > .urlbar-page-action {
+        #urlbar #page-action-buttons > .urlbar-page-action:not(#translations-button[translationsactive]) {
           width: var(--ct-tab-action-width) !important;
           min-width: var(--ct-tab-action-width) !important;
           margin-inline: 0 !important;
@@ -210,15 +210,36 @@
         }
 
         #urlbar :is(#trust-icon, #identity-icon, #tracking-protection-icon),
-        #translations-button > .urlbar-icon {
+        #urlbar #page-action-buttons .urlbar-icon {
           width: 12px !important;
           height: 12px !important;
+        }
+
+        /* Translated pages add a language badge (and a loading glyph).
+         * Keep the status visible without retaining the native 20px badge. */
+        #translations-button[translationsactive] {
+          width: auto !important;
+          min-width: var(--ct-tab-action-width) !important;
+          margin-inline: 0 !important;
+        }
+        #translations-button[translationsactive] > #translations-button-icon {
+          margin-inline: 2px !important;
+        }
+        #translations-button-circle-arrows {
+          margin-inline-end: 2px !important;
+        }
+        #translations-button-locale {
+          font-size: 9px !important;
+          height: 16px !important;
+          min-width: 16px !important;
+          padding: 1px !important;
+          margin: 0 2px 0 0 !important;
         }
 
         #urlbar :is(#trust-icon-container, #identity-icon-box,
           #tracking-protection-icon-container):is(:hover, [open], :focus-visible)
           :is(#trust-icon, #identity-icon, #tracking-protection-icon),
-        #translations-button:is(:hover, [open], :focus-visible) > .urlbar-icon,
+        #urlbar .urlbar-page-action:is(:hover, [open], :focus-visible) > .urlbar-icon,
         #stop-reload-button > toolbarbutton:is(:hover, :focus-visible) > .toolbarbutton-icon {
           color: var(--ct-icon-hover-color) !important;
           fill: currentColor !important;

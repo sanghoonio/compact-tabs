@@ -60,6 +60,8 @@ Live observations in Firefox 159.0.1:
 
 - Tightened integrated trailing controls to 22px horizontal slots, including page actions (translation/reader mode), Reload/Stop and the selected tab close button. Reload retains its 12px glyph; Close also remains 12px. Reduced the reserved Reload area to match. Restarted compact-tabs-dev and visually checked Reader View, Reload and Close together on the Mozilla Support article; translation was not visible on that page.
 
+- Refined spacing to 10px between tab surfaces and before New Tab, preserving inactive surface width. Trailing action slots are now 20px, with 12px page-action glyphs including Reader Mode and translation. The translation locale badge is reduced to 16px with compact margins; its active multi-part button retains automatic width. Reader Mode and translation were visually checked together on French Wikipedia after restarting the dev profile. The translated badge state remains unverified. Account remains before List All Tabs and the menu, as requested.
+
 Screenshots were visually inspected in the conversation; exported evidence artifacts have not been saved. Coordinate dragging returned noWindowsAvailable, so the native Window menu was used for resizing.
 
 ## Remaining verification and refinement
