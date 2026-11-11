@@ -12,13 +12,14 @@ Run in `compact-tabs-dev` after installing and restarting. Environment: macOS 15
 | Many tabs, narrow | Scroll arrows appear; selected tab stays fully visible and covers tabs behind it; field and Reload never under an arrow |
 | Pin a tab, select it | One row; pin widens with the field, no Close; ordinary tabs sit right after the divider |
 | Select an ordinary tab with pins | Pin shrinks to a favicon cell; ordinary tabs centred |
+| Split view (two tabs, right-click > split) | Pair holds both tabs; selected one has the field; switching sides moves it |
 | Tab group from the context menu | Chip and "+N" match tab height; line 3px under tabs, level with chip and counter lines |
 | Downloads button visible | Sits left of New Tab without overlap; tabs stay centred |
 | Private window (⇧⌘P) | Purple private button left of New Tab; nothing under ☰; tabs centred |
 | Popup window (a site's sign-in popup) | Firefox's normal layout with a visible address field |
 | Background window | Whole row fades evenly, including the selected tab's backing when tabs scroll |
 | macOS window fullscreen | Compact row kept; traffic lights reveal inline |
-| Dark appearance | Contrast of tabs, field and dropdowns |
+| Drag the window by empty space in the row; double-click it | Window moves; double-click zooms |
 
 ## Behaviour
 
@@ -32,4 +33,5 @@ Run in `compact-tabs-dev` after installing and restarting. Environment: macOS 15
 - Narrow selected tab: icons stay 20px apart; translate hides first, then Reader View.
 - ⌘D opens the bookmark dialog; no "Saved to bookmarks" note.
 - Customize Toolbar shows Firefox's normal layout; leaving it restores the compact row.
-- `install-dev.py --remove`, restart: stock Firefox returns.
+- `compact-tabs.two-rows` set to `true` in `about:config`: Firefox's two rows return at once with the rest of the styling; `false` restores the one row.
+- `./uninstall.sh` with Firefox closed, then start it: stock Firefox returns, and `about:config` shows the theme's prefs at their defaults.

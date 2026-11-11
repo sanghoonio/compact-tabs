@@ -9,7 +9,8 @@
 - **Always one row.** Never fall back to two rows for narrow windows, many tabs, pins or groups. Only Customize Toolbar, webpage/video fullscreen and popup windows use Firefox's normal layout.
 - **Real controls.** The address field in the selected tab is Firefox's own `#urlbar`, positioned with CSS anchor positioning. Site identity, address editing, suggestions and keyboard navigation stay native.
 - **CSS only.** No privileged startup scripts or autoconfig.
-- **Isolated profile.** All work happens in `compact-tabs-dev`; the regular profile is never touched.
+- **Isolated profile.** Development happens in `compact-tabs-dev`; the regular profile is only touched by an explicit install.
+- **Shareable.** Conventional layout (`chrome/`, `user.js`, `install.sh`, `uninstall.sh`), MIT licensed.
 
 ## Decisions
 

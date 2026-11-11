@@ -52,6 +52,15 @@ The shipped interface lives in `/Applications/Firefox.app/Contents/Resources/bro
 - Popup windows (`window.open` without a toolbar) get `popup-window` on the root; extension popups `web-extension-popup-window`; chromeless windows `chromeless-window`. They still contain a tab strip with a selected tab, so a layout keyed only on the selected tab also matches them.
 - Private windows have `privatebrowsingmode="temporary"` on the root. With Nova (`browser.nova.enabled`, on in 160) the indicator is `.private-browsing-indicator-button`, a toolbar button at the end of `#TabsToolbar`; the labelled `.private-browsing-indicator-with-label` is hidden.
 
+## Split view, density, vertical tabs, dragging
+
+- Split view (`browser.tabs.splitView.enabled`, on in 160) wraps two tabs in `tab-split-view-wrapper`: a two-column grid, `[hasactivetab]` when it holds the selected tab, `max-width: var(--tab-max-width)`. A widened selected tab spills out of it unless the wrapper is widened too. `gBrowser.addTabSplitView([tabA, tabB])` creates one.
+- `gUIDensity` in `browser.js` auto-compacts under Nova when `browser.uidensity` has no user value: if `36 / innerHeight > browser.compactmode.auto.threshold` (0.05, so under 720px tall) or, with the sidebar launcher collapsed, `56 / innerWidth > 0.05` (under 1120px wide). It sets `uidensity="compact"` on the root.
+- Vertical tabs (`sidebar.verticalTabs`) read `--tab-min-height` and `--tab-margin-block` from `:root` too; they use `--tab-margin-block-vertical` (2px). Root overrides meant for the horizontal row have to be wrapped in `@media not -moz-pref("sidebar.verticalTabs")`.
+- `xul.css` makes every `toolbar` draggable (`-moz-window-dragging: drag`) and `toolbaritem`, `toolbarbutton`, `tab`, `input` and similar no-drag. `<tabs id="tabbrowser-tabs">` is not on the no-drag list, so empty strip space drags the window. The property is not readable through `getComputedStyle`.
+- Container tabs draw `.tab-context-line` inside `.tab-background` (Nova: 2px, `--tab-context-line-block-offset` from the top). Multi-selected tabs get `[multiselected]`.
+- Tab notes are off by default (`browser.tabs.notes.enabled=false`).
+
 ## Tab states
 
 - A loading tab has `busy` on `.tabbrowser-tab`. No load percentage is exposed as an attribute.

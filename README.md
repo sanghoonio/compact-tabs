@@ -2,48 +2,74 @@
 
 A Firefox `userChrome.css` theme that recreates Safari's compact tab bar on macOS Sequoia (Safari 18, before Liquid Glass): one row, with the real Firefox address field living inside the selected tab. Layout, spacing and balance come from Safari; icons and behaviour stay Firefox's.
 
-Tested in Firefox 160.0 on macOS 15.7.4, in an isolated profile named `compact-tabs-dev`. Your regular profile has no theme CSS installed. It is pure CSS, with no privileged scripts.
+**Requires** macOS and Firefox 160 or later (tested on Firefox 160.0, macOS 15.7.4). Pure CSS: no scripts run inside Firefox.
 
 ## Install
 
-Launch the development profile on its own:
-
 ```sh
-/Applications/Firefox.app/Contents/MacOS/firefox -no-remote -P compact-tabs-dev
+git clone https://github.com/sanghoonio/compact-tabs.git
+cd compact-tabs
+./install.sh
 ```
 
-Install into it, then restart only that profile:
+It lists your Firefox profiles and asks which one to use (or name it: `./install.sh --profile default-release`). Then restart Firefox. Run it again after pulling updates.
+
+To remove it:
 
 ```sh
-python3 scripts/install-dev.py --mode selected-address   # full theme, one row
-python3 scripts/install-dev.py --mode geometry           # same styling, Firefox's two rows
-python3 scripts/install-dev.py --dry-run                 # show what would change
-python3 scripts/install-dev.py --remove                  # roll back
+./uninstall.sh
 ```
 
-The installer only touches the profile named `compact-tabs-dev`, and writes two things there:
+Quit Firefox first, so the uninstaller can also reset the theme's prefs to Firefox's defaults; if Firefox is running it removes the theme and tells you to run it again.
 
-- `chrome/userChrome.css`, which imports copies of the stylesheets from `chrome/compact-tabs/`. It refuses to overwrite a `userChrome.css` it did not create.
-- A block in `user.js` between `// BEGIN compact-tabs managed prefs` and `// END compact-tabs managed prefs`, holding `scripts/prefs.js`. Only that block is rewritten; other lines stay. If one of these prefs is also set elsewhere in `user.js`, it says so, and the block's value wins.
+**What the installer changes,** in the chosen profile only:
 
-The prefs:
+- copies `chrome/compact-tabs/` into the profile's `chrome/` folder;
+- adds two `@import` lines at the top of `chrome/userChrome.css`, between `/* BEGIN compact-tabs */` and `/* END compact-tabs */`, creating the file if needed;
+- adds the prefs from [`user.js`](user.js) at the end of the profile's `user.js`, between `// BEGIN compact-tabs` and `// END compact-tabs`.
+
+Anything else in those files is left alone, and the uninstaller removes exactly those blocks. Options: `--profile NAME`, `--profile-path DIR`, `--yes` (no prompt), and for `install.sh`, `--dev` (also adds the Browser Toolbox prefs from `scripts/dev-prefs.js`).
+
+### Manual install
+
+1. In `about:support`, click **Open Folder** next to **Profile Folder**.
+2. Copy this repo's `chrome` folder into it. If the profile already has a `chrome/userChrome.css`, copy only `chrome/compact-tabs/` and put the two `@import` lines from this repo's `userChrome.css` at the very top of yours.
+3. Copy the lines from [`user.js`](user.js) into the profile's `user.js` (create it if missing), or set the same prefs in `about:config`.
+4. Restart Firefox.
+
+### Prefs
 
 - `toolkit.legacyUserProfileCustomizations.stylesheets=true`: load `userChrome.css` at all.
 - `browser.urlbar.suggest.engines=false`: no "Search with <engine>" row when typed text matches an engine name.
+- `browser.uidensity=0`: normal density, chosen explicitly. Otherwise Firefox switches itself to compact density in windows under 720px tall, or narrower than 1120px with the sidebar launcher collapsed.
 - `browser.urlbar.trimWww=true`: `wikipedia.org` instead of `www.wikipedia.org`. Firefox 160 already hides `https://` and shows the full address again when you click in.
 - `browser.tabs.dragDrop.createGroup.enabled=false`: holding a dragged tab over another reorders, never creates a group. Groups still come from the tab context menu.
 - `browser.bookmarks.editDialog.confirmationHintShowCount=3`: the "Saved to bookmarks" note never opens. Firefox anchors it to the menu button at the window's right edge, where it runs off the window.
-- `devtools.chrome.enabled=true`, `devtools.debugger.remote-enabled=true`: development only, for the Browser Toolbox (Tools > Browser Tools), whose Inspector shows Firefox's own interface.
 
-`--remove` deletes the entry stylesheet and the `user.js` block. If Firefox is not running that profile, it also clears those prefs from `prefs.js` so Firefox's defaults return; otherwise quit Firefox and run it again. Copied CSS and all other profile data stay.
+### Options
+
+- `compact-tabs.two-rows` (boolean, create it in `about:config`): `true` keeps Firefox's two rows (tabs above, toolbar below) with the rest of the styling. Takes effect immediately.
 
 ## Files
 
-- `chrome/geometry.css`: everything except the one-row layout. Tab proportions, Close placement, address-field icon order, toolbar button sizing, dropdowns, hidden controls. Applies in both modes.
-- `experiments/selected-address.css`: the one-row layout. Only active on macOS, with CSS anchor positioning, outside Customize Toolbar and webpage/video fullscreen.
-- `scripts/install-dev.py`, `scripts/prefs.js`: installer and prefs.
+- `chrome/userChrome.css`: imports the two stylesheets.
+- `chrome/compact-tabs/base.css`: everything except the one-row layout: tab proportions, Close placement, address-field icon order, toolbar button sizing, dropdowns, hidden controls.
+- `chrome/compact-tabs/one-row.css`: the one-row layout. macOS only, needs CSS anchor positioning, and steps aside for Customize Toolbar, webpage/video fullscreen, popup windows and the two-rows option.
+- `user.js`: required prefs. `scripts/dev-prefs.js`: Browser Toolbox prefs for development.
+- `install.sh`, `uninstall.sh`, `scripts/common.sh`: installer.
 - `docs/`: [brief](docs/BRIEF.md), [Safari reference](docs/SAFARI-REFERENCE.md), [Firefox notes](docs/FIREFOX-NOTES.md), [manual checks](docs/VALIDATION.md).
 - `plans/`: dated plans and implementation logs.
+
+## Development
+
+Work in a separate profile so your everyday one is untouched. The author's is named `compact-tabs-dev`:
+
+```sh
+/Applications/Firefox.app/Contents/MacOS/firefox -no-remote -P compact-tabs-dev
+./install.sh --profile compact-tabs-dev --dev --yes
+```
+
+Reinstall after each change and restart that profile. The Browser Toolbox (Tools > Browser Tools) inspects Firefox's own interface.
 
 ## Layout
 
@@ -57,6 +83,8 @@ The prefs:
 
 **Pinned tabs.** Pins sit at the leading edge with a 1×16px divider after the last one. A selected pin widens like any selected tab, with the address field and no Close. While a pin is selected, ordinary tabs line up right after the divider instead of centring, as Safari does.
 
+**Split view.** The pair holding the selected tab is as wide as a selected tab plus a favicon cell; the selected tab gets three quarters of it, with the field. Other pairs compress to two favicon cells.
+
 **Tab groups.** Groups stay in the row. The name chip and collapsed "+N" counter are 28px with 6px corners and tab gaps; the group's coloured line sits 3px below the tab surfaces.
 
 **Dragging.** While a tab is dragged, the address field and Reload hide and the selected tab shows its own title; they come back on drop. The centred row shifts by half a tab while one is lifted, since CSS cannot reserve the dragged tab's width.
@@ -64,6 +92,8 @@ The prefs:
 **Buttons and menus.** Every toolbar button's hover square is 28px (a 16px icon with 6px padding), 8px apart. Icon hover uses the system accent colour (`--ct-icon-hover-color`); Close hover uses Firefox's red (`--ct-close-hover-color`). Firefox-drawn dropdowns (application menu, List All Tabs, Downloads, in-page `panel-list` menus) use 6px panel corners, 5px item highlights and full-width separators. Context menus and the menu bar are native macOS menus.
 
 **Materials.** The tab and bookmarks rows use Firefox's translucent toolbar layer, the same as the sidebar launcher. Tab labels and address text share one size (root + 1pt). Background windows fade the whole compact row, as macOS fades a titlebar.
+
+**Vertical tabs.** With vertical tabs on, the one-row layout switches off and Firefox's toolbar returns; tabs keep Firefox's own height and spacing. Container tabs show Firefox's coloured line inside the tab surface; several selected tabs share the selected tab's shading.
 
 ## Known limits
 
@@ -73,4 +103,8 @@ The prefs:
 - **Domain only is not possible.** Safari shows just the domain until you click in; Firefox can only trim `https://` and `www.`.
 - **Sound in favicon-only tabs.** Firefox's sound button sits beside the favicon, so a playing background tab narrower than its favicon plus the button may clip it.
 - **Toolbar layout is assumed.** The offsets assume Sidebar, Back, Forward on the left and New Tab, List All Tabs, Menu on the right. Other customizations may collide.
-- **Not checked by eye yet:** the group line and chip alignment, `@`-mode label spacing, the sticky selected tab's backing in a background window, dark appearance, and the fullscreen traffic-light reveal.
+- **Not checked by eye yet:** the group line and chip alignment, `@`-mode label spacing, the sticky selected tab's backing in a background window, the fullscreen traffic-light reveal, and dragging the window from empty space in the row (it should work; Firefox marks only buttons, fields and tabs as non-draggable).
+
+## License
+
+MIT. See [LICENSE](LICENSE).

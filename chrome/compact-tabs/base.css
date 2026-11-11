@@ -25,10 +25,14 @@
     --ct-tab-font-size: calc(1rem + 1pt);
     --ct-inactive: light-dark(rgb(0 0 0 / 0.045), rgb(255 255 255 / 0.055));
     --ct-selected: light-dark(rgb(0 0 0 / 0.13), rgb(255 255 255 / 0.16));
-    --tab-min-height: var(--ct-cell-height) !important;
     --tabstrip-min-height: var(--ct-row-height) !important;
     --tab-border-radius: var(--ct-radius) !important;
-    --tab-margin-block: 10px !important;
+    /* Row metrics for horizontal tabs only. Vertical tabs keep Firefox's
+     * height and 2px spacing; 10px margins made each one 53px tall. */
+    @media not -moz-pref("sidebar.verticalTabs") {
+      --tab-min-height: var(--ct-cell-height) !important;
+      --tab-margin-block: 10px !important;
+    }
     --toolbarbutton-border-radius: var(--ct-radius) !important;
     /* Dropdowns: Nova rounds panels to 24px and item highlights to 16px
      * pills. Use the tab radius for panels and a slightly smaller corner

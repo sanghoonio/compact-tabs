@@ -1,0 +1,5 @@
+/* Compact Tabs: a Safari-style compact tab bar for Firefox on macOS.
+ * If you already have a userChrome.css, put these two lines at its very
+ * top; @import only works before any other rule. */
+@import url("compact-tabs/base.css");
+@import url("compact-tabs/one-row.css");

@@ -1,0 +1,668 @@
+/* Compact Tabs one-row layout: Safari-style integration using the real
+ * Firefox URL bar, anchored to the selected tab. macOS only; turned off by
+ * the compact-tabs.two-rows pref.
+ * Applies at every window width; tab groups and pinned tabs stay in the row.
+ * Native scrolling handles overflow. Customize Toolbar, webpage/video
+ * fullscreen and popup windows (window.open without a toolbar, extension
+ * popups) use Firefox's native layout (plus base.css).
+ */
+@-moz-document url("chrome://browser/content/browser.xhtml") {
+  @supports (anchor-name: --ct-selected) and (left: anchor(left)) {
+    @media (-moz-platform: macos) {
+      /* about:config compact-tabs.two-rows = true keeps Firefox's two rows. */
+      @media not -moz-pref("compact-tabs.two-rows") {
+        :root:not([customizing], [inDOMFullscreen], [popup-window], [chromeless-window], [web-extension-popup-window])
+          :is(#navigator-toolbox):has(#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab[selected]) {
+          anchor-name: --ct-toolbar;
+          display: grid !important;
+          grid-template-columns: minmax(0, 1fr);
+          align-items: center;
+          --ct-history-width: calc(2 * var(--ct-toolbar-button-size));
+          --ct-tab-action-width: 20px;
+          /* Selected tab: Close occupies the leading edge (edge inset + 20px
+           * slot + 2px gap); the address field starts after it and Reload
+           * takes Close's former place at the trailing edge. */
+          --ct-tab-edge: calc(var(--ct-tab-content-padding) - var(--ct-tab-close-pull));
+          --ct-tab-close-reserve: calc(var(--ct-tab-edge) + var(--ct-tab-action-width) + 2px);
+          /* Gap between each button group and the tabs: 8px at a 600px
+           * window, growing linearly to 24px at 1200px. */
+          --ct-navigation-tab-spacing: clamp(8px, calc(8px + (100vw - 600px) * 16 / 600), 24px);
+          /* Buttons that appear in the navigation bar after the address field
+           * (Downloads, pinned extension buttons) need room left of the fixed
+           * New Tab group; counted below, up to three. */
+          --ct-trailing-extra: 0px;
+          /* Private windows add Firefox's private-browsing button, placed
+           * between those buttons and New Tab. */
+          --ct-private-extra: 0px;
+          /* Sound indicator slot before Reload while the selected tab plays,
+           * is muted or has blocked media. */
+          --ct-tab-audio-width: 0px;
+          /* Reserves balance the tab strip about the window centre: leading
+           * covers Sidebar plus history, trailing New Tab, List All Tabs, menu.
+           * The leading constant is calibrated from a live screenshot (one
+           * 471px tab, 1178px window): 85px left the tab 19.5px left of
+           * centre, so it is 39px less. History, spacing and extra buttons
+           * appear on both sides of the balance and cancel out. */
+          --ct-strip-left-reserve: calc(46px + var(--ct-toolbar-button-size) + var(--ct-navigation-tab-spacing) + var(--ct-history-width));
+          --ct-strip-right-reserve: calc(3 * var(--ct-toolbar-button-size) - 30px + var(--ct-navigation-tab-spacing));
+          /* Suggestions panel, estimated from a Safari screenshot on Sequoia. */
+          --ct-suggestions-overhang: 6px;
+          --ct-suggestions-gap: 4px;
+          --ct-suggestions-padding: 7px;
+          --ct-suggestions-row-gutter: 1px;
+
+          &:has(#back-button[disabled]), &:has(#forward-button[disabled]) {
+            --ct-history-width: var(--ct-toolbar-button-size);
+          }
+
+          &:has(#back-button[disabled]):has(#forward-button[disabled]) {
+            --ct-history-width: 0px;
+          }
+
+          /* Pinned tabs have no Close button, so a selected pin's address
+           * field starts at the tab's leading inset. */
+          &:has(.tabbrowser-tab[selected][pinned]) {
+            --ct-tab-close-reserve: var(--ct-tab-edge);
+          }
+
+          :root[privatebrowsingmode="temporary"] & {
+            --ct-private-extra: var(--ct-toolbar-button-size);
+          }
+          &:has(.tabbrowser-tab[selected]:not([crashed]):is([soundplaying], [muted], [activemedia-blocked])) {
+            --ct-tab-audio-width: var(--ct-tab-action-width);
+          }
+
+          &:has(#nav-bar-customization-target > :nth-last-child(1 of :is(#downloads-button, .unified-extensions-item):not([hidden]))) {
+            --ct-trailing-extra: var(--ct-toolbar-button-size);
+          }
+          &:has(#nav-bar-customization-target > :nth-last-child(2 of :is(#downloads-button, .unified-extensions-item):not([hidden]))) {
+            --ct-trailing-extra: calc(2 * var(--ct-toolbar-button-size));
+          }
+          &:has(#nav-bar-customization-target > :nth-last-child(3 of :is(#downloads-button, .unified-extensions-item):not([hidden]))) {
+            --ct-trailing-extra: calc(3 * var(--ct-toolbar-button-size));
+          }
+
+          > #TabsToolbar, > #nav-bar {
+            grid-area: 1 / 1;
+            min-width: 0 !important;
+            min-height: var(--ct-row-height) !important;
+          }
+
+          > :not(#TabsToolbar, #nav-bar) { grid-column: 1; }
+
+          /* Both rows carry the one translucent toolbar layer Firefox also
+           * paints on the sidebar launcher. The navigation bar overlays the
+           * tab row, so it stays transparent to avoid doubling that layer. */
+          > :is(#TabsToolbar, #PersonalToolbar) {
+            background: var(--toolbar-background-color) !important;
+          }
+          > #PersonalToolbar { box-shadow: none !important; }
+
+          > #TabsToolbar {
+            /* Native leading titlebar reserve remains intact. */
+            padding-inline: 0 !important;
+          }
+
+          /* Firefox hides this 40px spacer at widths of 500px and below and in
+           * macOS fullscreen, which let the tab strip run under New Tab. Remove
+           * it always; the trailing margin below carries its width instead. */
+          #TabsToolbar > .titlebar-spacer[type="post-tabs"] {
+            display: none !important;
+          }
+
+          #TabsToolbar > .toolbar-items {
+            /* Equal gaps before and after the tabs: the trailing margin is New
+             * Tab's left edge (6px + three buttons from the window edge) plus
+             * the spacing, and replaces Firefox's post-tabs spacer.
+             * Extra trailing buttons shrink both sides equally, so the tabs stay
+             * centred on the window. */
+            margin-inline:
+              calc(var(--ct-toolbar-button-size) - 32px + var(--ct-navigation-tab-spacing) + var(--ct-history-width) + var(--ct-trailing-extra) + var(--ct-private-extra))
+              calc(3 * var(--ct-toolbar-button-size) + 6px + var(--ct-navigation-tab-spacing) + var(--ct-trailing-extra) + var(--ct-private-extra)) !important;
+            min-width: 0 !important;
+          }
+
+          > #nav-bar {
+            background: transparent !important;
+            box-shadow: none !important;
+            border: 0 !important;
+            padding-inline: 83px 4px !important;
+            pointer-events: none;
+            z-index: 3;
+            display: flex !important;
+            transition: opacity var(--inactive-window-transition);
+          }
+          /* Firefox fades the titlebar (here the tab row) in background windows
+           * but not the navigation bar, which overlays the same row here. */
+          > #nav-bar:-moz-window-inactive {
+            opacity: var(--inactive-titlebar-opacity);
+          }
+
+          /* Visible gaps: 20px before red, 25px from green to sidebar. */
+          #TabsToolbar .titlebar-buttonbox {
+            margin-inline: 19px 0 !important;
+          }
+
+          /* Keep the native window-button box in the SAME compact row when
+           * macOS reveals it in fullscreen, rather than relocating navigation
+           * into the space where the traffic lights belong. */
+          :root[inFullscreen] & #TabsToolbar > .titlebar-buttonbox-container {
+            display: flex !important;
+            align-items: center !important;
+          }
+          :root[inFullscreen] & #TabsToolbar > .titlebar-spacer[type="pre-tabs"] {
+            display: flex !important;
+            width: 40px !important;
+          }
+
+          #nav-bar-customization-target {
+            display: flex !important;
+            flex: 1 1 auto !important;
+            min-width: 0 !important;
+            /* Room for the fixed New Tab and List All Tabs buttons, so in-flow
+             * buttons such as Downloads line up left of New Tab. */
+            padding-inline-end: calc(2 * var(--ct-toolbar-button-size) + 2px + var(--ct-private-extra)) !important;
+          }
+          /* Fixed trailing group: New Tab, List All Tabs, application menu,
+           * plus the private-browsing button left of New Tab when shown. Kept
+           * to plain ids in :is(): a more specific entry would raise the whole
+           * rule above the per-button `right` rules below. */
+          :is(#alltabs-button, #new-tab-button, .private-browsing-indicator-button) {
+            position: fixed !important;
+            position-anchor: --ct-toolbar;
+            top: anchor(top) !important;
+            right: calc(6px + var(--ct-toolbar-button-size)) !important;
+            width: var(--ct-toolbar-button-size) !important;
+            height: var(--ct-row-height) !important;
+            padding: 0 var(--toolbarbutton-padding-outer) !important;
+            align-items: center !important;
+            margin: 0 !important;
+            z-index: 4;
+          }
+          #TabsToolbar > .private-browsing-indicator-button {
+            right: calc(6px + 3 * var(--ct-toolbar-button-size)) !important;
+          }
+          #tabs-newtab-button { display: none !important; }
+          #new-tab-button {
+            display: flex !important;
+            right: calc(6px + 2 * var(--ct-toolbar-button-size)) !important;
+          }
+
+          #forward-button { margin-inline-end: auto !important; }
+          &:has(#forward-button[disabled]) #back-button { margin-inline-end: auto !important; }
+          &:has(#back-button[disabled]):has(#forward-button[disabled]) #sidebar-button { margin-inline-end: auto !important; }
+
+          #stop-reload-button {
+            position: fixed !important;
+            position-anchor: --ct-selected;
+            /* Hidden if the anchor is missing or clipped away, instead of
+             * falling back to its normal toolbar spot after Back. */
+            position-visibility: anchors-valid anchors-visible;
+            left: calc(anchor(right) - var(--ct-tab-inset) - var(--ct-tab-edge) - var(--ct-tab-action-width)) !important;
+            top: calc(anchor(top) + 10px) !important;
+            width: var(--ct-tab-action-width) !important;
+            height: 28px !important;
+            margin: 0 !important;
+            z-index: 5;
+            pointer-events: auto;
+          }
+          #stop-reload-button > toolbarbutton {
+            padding: 0 !important;
+            margin: 0 !important;
+            min-width: var(--ct-tab-action-width) !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+          }
+          #stop-reload-button .toolbarbutton-icon {
+            box-sizing: border-box !important;
+            /* Keep a 12px glyph while tightening the horizontal target. */
+            padding: 8px calc((var(--ct-tab-action-width) - 12px) / 2) !important;
+            width: var(--ct-tab-action-width) !important;
+            height: 28px !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+          }
+
+          #nav-bar > .titlebar-spacer { display: none !important; }
+          #nav-bar toolbarbutton, #urlbar-container { pointer-events: auto; }
+          #nav-bar toolbarspring { flex: 1 !important; }
+
+          #TabsToolbar-customization-target > toolbarspring { display: none !important; }
+          #tabbrowser-tabs {
+            flex: 1 1 0% !important;
+            min-width: 0 !important;
+            max-width: none !important;
+            /* Balances the unequal button groups about the window centre.
+             * Narrow windows need the room for tabs, so the balance grows
+             * from 0 at a 600px window by 1px per 4px of width until full. */
+            --ct-strip-balance-cap: max(0px, calc((100vw - 600px) / 4));
+            padding-inline:
+              min(var(--ct-strip-balance-cap), max(0px, calc(var(--ct-strip-right-reserve) - var(--ct-strip-left-reserve))))
+              min(var(--ct-strip-balance-cap), max(0px, calc(var(--ct-strip-left-reserve) - var(--ct-strip-right-reserve)))) !important;
+          }
+
+          /* Center actual tab surfaces, not only the full-width outer tabs box.
+           * Balance the unequal toolbar groups about the window midpoint. Safe
+           * centering keeps the first tab reachable when native scrolling starts. */
+          #tabbrowser-arrowscrollbox[orient="horizontal"]::part(scrollbox) {
+            justify-content: safe center !important;
+          }
+          #tabbrowser-arrowscrollbox[orient="horizontal"]::part(items-wrapper) {
+            justify-content: safe center !important;
+          }
+          /* The leading centering margin goes on the first tab that is still in
+           * the row. A dragged tab is lifted out with position:absolute, and a
+           * hidden tab takes no space; either would otherwise carry the margin
+           * away and snap the whole row to the left mid-drag. */
+          /* A tab group is display:contents, so when a group comes first the
+           * margin goes on its label chip, the group's first rendered box. */
+          #tabbrowser-arrowscrollbox > :nth-child(1 of :is(.tabbrowser-tab, tab-group, tab-split-view-wrapper):not([dragtarget], [hidden])):not(tab-group),
+          #tabbrowser-arrowscrollbox > tab-group:nth-child(1 of :is(.tabbrowser-tab, tab-group, tab-split-view-wrapper):not([dragtarget], [hidden])) > .tab-group-label-container:not([dragtarget]) {
+            margin-inline-start: auto !important;
+          }
+          #tabbrowser-arrowscrollbox-periphery {
+            margin-inline-end: auto !important;
+          }
+          /* Pins stay at the strip's leading edge (Firefox keeps them in their
+           * own container); ordinary tabs centre in the remaining space.
+           * Centering both together needs the unpinned scrollbox to stop at its
+           * content width, but Firefox measures that width as near zero (see
+           * plans/2026-11-11-pinned-tabs-compact-layout.md). */
+          &:has(#pinned-tabs-container > .tabbrowser-tab) {
+            /* Safari: while a pin is selected, ordinary tabs line up right
+             * after the divider instead of centring. */
+            &:has(#pinned-tabs-container > .tabbrowser-tab[selected]) {
+              #tabbrowser-arrowscrollbox[orient="horizontal"]::part(scrollbox),
+              #tabbrowser-arrowscrollbox[orient="horizontal"]::part(items-wrapper) {
+                justify-content: flex-start !important;
+              }
+              #tabbrowser-arrowscrollbox > :is(.tabbrowser-tab, tab-split-view-wrapper),
+              #tabbrowser-arrowscrollbox > tab-group > .tab-group-label-container {
+                margin-inline-start: 0 !important;
+              }
+            }
+            /* Divider after the last pin, in the tab gap. */
+            #pinned-tabs-container::after {
+              content: "";
+              align-self: center;
+              flex: none;
+              width: 1px;
+              height: 16px;
+              margin-inline: calc(var(--ct-tab-inset) - 0.5px);
+              background-color: color-mix(in srgb, currentColor 25%, transparent);
+            }
+          }
+          /* Firefox re-resolves anchored boxes when the anchor NAME moves to
+           * another tab, but not when the same tab is moved by a drag, which
+           * left the address field one slot behind after reordering. Dropping
+           * the name for the duration of a drag forces a fresh lookup on drop. */
+          #tabbrowser-tabs:not([movingtab]) .tabbrowser-tab[selected] {
+            anchor-name: --ct-selected;
+          }
+          /* When tabs overflow, the selected tab sticks inside the visible
+           * strip instead of scrolling partly out of it. Anchored boxes only
+           * follow scrolling by translation (their clamps are not recomputed),
+           * so this is what keeps the address field and Reload on a fully
+           * visible tab. Measured in a headless probe: the field stays inside
+           * the sticky tab at both scroll ends. Not during drags, which
+           * position tabs themselves. */
+          #tabbrowser-tabs:not([movingtab]) .tabbrowser-tab[selected] {
+            position: sticky !important;
+            inset-inline: 0 !important;
+            z-index: 2 !important;
+          }
+          /* It can then cover neighbouring tabs, so paint it with the same
+           * material as the toolbar behind it: Firefox's translucent toolbar
+           * layer over the window gradient (fixed to the window, as on body). */
+          #tabbrowser-arrowscrollbox[overflowing] .tabbrowser-tab[selected] {
+            background:
+              linear-gradient(var(--toolbar-background-color), var(--toolbar-background-color)),
+              var(--toolbox-background-image, none) fixed,
+              var(--toolbox-background-color) !important;
+            :root:-moz-window-inactive & {
+              background:
+                linear-gradient(var(--toolbar-background-color), var(--toolbar-background-color)),
+                var(--toolbox-background-color-inactive) !important;
+            }
+          }
+
+          /* While dragging, the selected tab shows as an ordinary tab and the
+           * detached address field and Reload stay invisible (not hidden, so a
+           * focused field keeps focus). */
+          &:has(#tabbrowser-tabs[movingtab]) :is(#urlbar-container, #stop-reload-button) {
+            opacity: 0 !important;
+            pointer-events: none !important;
+          }
+          /* Widen the selected tab, except while Firefox shrinks a dragged
+           * collapsed group to nothing. */
+          .tabbrowser-tab[selected]:not(tab-group[collapsed][movingtabgroup] > *) {
+            /* Shrinks in narrow windows, as Safari's active field does. */
+            min-width: min(300px, 25vw) !important;
+            max-width: 480px !important;
+            flex: 3 1 480px !important;
+          }
+
+          /* Narrow windows, as Safari: inactive tabs compress down to a
+           * favicon-only cell (16px icon + content padding + tab inset) and
+           * drop their title once too narrow to show one. */
+          --ct-tab-icon-cell: calc(16px + 2 * var(--ct-tab-content-padding) + var(--ct-tab-gap));
+          #tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned], [selected]) {
+            min-width: var(--ct-tab-icon-cell) !important;
+          }
+          #tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned]) > .tab-stack {
+            container-type: inline-size;
+          }
+          /* Drop the title once the fade would leave under about two
+           * readable characters: 18px content padding + 16px icon + 5.5px
+           * icon margin + ~32px of label, of which Firefox fades the last 1em.
+           * Earlier, the label box still took space while showing nothing, so
+           * the favicon sat left of centre. */
+          @container (max-width: 72px) {
+            .tabbrowser-tab:not([pinned], [selected]) .tab-label-container {
+              display: none !important;
+            }
+            /* Firefox puts the icon's end margin on the images inside the
+             * icon stack, not the stack, so zero the variable they read. */
+            .tabbrowser-tab:not([pinned], [selected]) .tab-content {
+              justify-content: center !important;
+              --tab-icon-margin-inline-end: 0px !important;
+            }
+          }
+
+          /* Split view: Firefox puts the two tabs in a wrapper capped at one
+           * inactive tab's width, so the widened selected tab spilled out of
+           * it. The wrapper holding the selected tab takes the selected width
+           * plus a favicon cell for its partner, and the selected tab gets
+           * three quarters of it. Other wrappers compress to two favicon
+           * cells, like ordinary tabs. */
+          #tabbrowser-tabs[orient="horizontal"] tab-split-view-wrapper {
+            min-width: calc(2 * var(--ct-tab-icon-cell)) !important;
+            > .tabbrowser-tab {
+              min-width: 0 !important;
+              max-width: none !important;
+            }
+            &[hasactivetab] {
+              min-width: calc(min(300px, 25vw) + var(--ct-tab-icon-cell)) !important;
+              max-width: calc(480px + var(--tab-max-width)) !important;
+              flex: 3 1 calc(480px + var(--tab-max-width)) !important;
+              grid-template-columns: minmax(0, 3fr) minmax(var(--ct-tab-icon-cell), 1fr) !important;
+            }
+            &[hasactivetab]:has(> .tabbrowser-tab[selected]:last-child) {
+              grid-template-columns: minmax(var(--ct-tab-icon-cell), 1fr) minmax(0, 3fr) !important;
+            }
+          }
+
+          /* Exactly one tab: no sibling tab, no group and no pin (grouped and
+           * pinned tabs are not siblings of ordinary ones). */
+          &:not(:has(.tabbrowser-tab ~ .tabbrowser-tab, tab-group, #pinned-tabs-container > .tabbrowser-tab)) .tabbrowser-tab[selected] {
+            max-width: calc(40vw + var(--ct-tab-gap)) !important;
+          }
+
+          /* The real tab close button stays visible at the leading edge. */
+          #tabbrowser-tabs:not([movingtab]) .tabbrowser-tab[selected] :is(.tab-label-container, .tab-icon-stack) {
+            visibility: hidden;
+          }
+
+          /* Same compact 20px pitch as the in-field controls. */
+          .tabbrowser-tab[selected] .tab-close-button {
+            width: var(--ct-tab-action-width) !important;
+            height: var(--ct-tab-action-width) !important;
+            padding: calc((var(--ct-tab-action-width) - 12px) / 2) !important;
+            margin-inline: calc(-1 * var(--ct-tab-close-pull)) 0 !important;
+          }
+
+          /* Sound: Firefox's own tab button, moved to a 20px slot just before
+           * Reload. The field ends before it, so the click reaches the tab's
+           * button (mute/unmute) as usual. Pins get it too; Firefox shows
+           * their sound state only as a favicon badge, which is hidden here. */
+          #tabbrowser-tabs:not([movingtab]) .tabbrowser-tab[selected]:not([crashed]) .tab-audio-button:is([soundplaying], [muted], [activemedia-blocked]) {
+            display: flex !important;
+            position: absolute !important;
+            inset-inline-end: calc(var(--ct-tab-edge) + var(--ct-tab-action-width)) !important;
+            top: calc(50% - var(--ct-tab-action-width) / 2) !important;
+            width: var(--ct-tab-action-width) !important;
+            height: var(--ct-tab-action-width) !important;
+            margin: 0 !important;
+            --icon-size: 12px;
+            --button-size-icon-small: var(--ct-tab-action-width);
+            --button-min-height-small: var(--ct-tab-action-width);
+            --button-background-color-ghost-hover: transparent;
+            --button-background-color-ghost-active: transparent;
+          }
+          #tabbrowser-tabs:not([movingtab]) .tabbrowser-tab[selected] .tab-content {
+            position: relative;
+          }
+
+          /* In-field buttons, using Firefox's own list in urlbar.css: page
+           * actions (built-in and extension), the persisted-search revert
+           * globe, the go arrow, and the input's clear button. */
+          #urlbar :is(#page-action-buttons > .urlbar-page-action:not(#star-button-box, #translations-button[translationsactive]),
+            #urlbar-revert-button-container) {
+            width: var(--ct-tab-action-width) !important;
+            min-width: var(--ct-tab-action-width) !important;
+            margin-inline: 0 !important;
+          }
+          /* Site-info buttons moved to the trailing group use the same 20px
+           * pitch; they can carry a text label, so only the minimum is fixed. */
+          #urlbar :is(#trust-icon-container, #tracking-protection-icon-container,
+            #identity-icon-box, #identity-permission-box, #notification-popup-box) {
+            min-width: var(--ct-tab-action-width) !important;
+            padding-inline: calc((var(--ct-tab-action-width) - 12px) / 2) !important;
+            margin-inline: 0 !important;
+          }
+          /* Firefox spaces every item in the field with --urlbar-component-gap,
+           * but packs page actions together in one box, so site-info icons sat
+           * further apart than page actions. Zero the gap; keep one between
+           * the text and the trailing icons. */
+          #urlbar > .urlbar-input-container {
+            column-gap: 0 !important;
+          }
+          #urlbar > .urlbar-input-container > .urlbar-input-box {
+            margin-inline-end: var(--urlbar-component-gap) !important;
+            min-width: 0 !important;
+          }
+          /* Icons keep their 20px pitch; only the text gives way. Squeezed
+           * icons otherwise slide under Reload, which sits at a fixed spot. */
+          #urlbar > .urlbar-input-container > :not(.urlbar-input-box),
+          #urlbar :is(#page-action-buttons, #identity-box) > * {
+            flex-shrink: 0 !important;
+          }
+          /* A narrow selected tab sheds page actions before site info: other
+           * page actions (translate, extensions) first, then Reader View. The
+           * shield and permission/sharing icons always stay. Each limit
+           * leaves roughly 40px for the address text. */
+          #urlbar-container {
+            container: ct-field / inline-size;
+          }
+          @container ct-field (max-width: 110px) {
+            #urlbar #page-action-buttons > .urlbar-page-action:not(#star-button-box, #reader-mode-button) {
+              display: none !important;
+            }
+          }
+          @container ct-field (max-width: 90px) {
+            #urlbar #reader-mode-button {
+              display: none !important;
+            }
+          }
+          /* Permission, sharing and blocked-permission icons: 12px glyphs, each
+           * further icon in the same box on the 20px pitch. */
+          #urlbar :is(#permissions-granted-icon, .sharing-icon, .blocked-permission-icon, .notification-anchor-icon) {
+            width: 12px !important;
+            height: 12px !important;
+            margin-inline-start: 0 !important;
+          }
+          /* A flex gap applies only between icons that are actually shown. */
+          #urlbar :is(#identity-permission-box, #blocked-permissions-container, #notification-popup-box) {
+            column-gap: calc(var(--ct-tab-action-width) - 12px) !important;
+          }
+
+          #urlbar-container {
+            position: fixed !important;
+            position-anchor: --ct-selected;
+            /* Hidden if the anchor is missing or clipped away, instead of
+             * falling back to its normal toolbar spot after Back. */
+            position-visibility: anchors-valid anchors-visible;
+            left: calc(anchor(left) + var(--ct-tab-inset) + var(--ct-tab-close-reserve)) !important;
+            /* Ends before Reload, and before the sound button when shown,
+             * so both stay clickable on the tab underneath. */
+            right: calc(anchor(right) + var(--ct-tab-inset) + var(--ct-tab-edge) + var(--ct-tab-action-width) + var(--ct-tab-audio-width)) !important;
+            top: calc(anchor(top) + 10px) !important;
+            width: auto !important;
+            min-width: 0 !important;
+            height: var(--ct-cell-height) !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            --urlbar-height: var(--ct-cell-height) !important;
+            --urlbar-container-min-width: 0px !important;
+          }
+
+          #urlbar {
+            /* macOS Firefox otherwise enlarges the URL bar to 1.25em. */
+            font-size: var(--ct-tab-font-size) !important;
+            font-family: inherit !important;
+            font-weight: normal !important;
+            width: 100% !important;
+            padding-inline-end: 0 !important;
+            --urlbar-border-radius: var(--ct-radius) !important;
+            --urlbar-background-border-radius: var(--ct-radius) !important;
+            --urlbar-box-background-color: transparent !important;
+            --urlbar-box-background-color-hover: transparent !important;
+            --urlbar-box-background-color-active: transparent !important;
+            --urlbar-box-background-color-focus: transparent !important;
+            --urlbar-background-overhang-open: 0px !important;
+            --urlbar-input-growth-open-inline: 0px !important;
+            --urlbar-input-growth-open-block: 0px !important;
+            --urlbar-input-container-outline-open: none !important;
+            --urlbar-input-container-outline-open-focused: none !important;
+          }
+
+          #urlbar .urlbar-input { font: inherit !important; }
+
+          /* The selected tab owns the combined surface and its focus outline.
+           * Firefox's joint input/suggestions background otherwise grows above
+           * the toolbar and ends partway through Reload/Close, making a clipped
+           * second tab shape. Keep the actual input, detach only that painting. */
+          #urlbar .urlbar-background { display: none !important; }
+          #urlbar .urlbar-input-container {
+            outline: none !important;
+            border-color: transparent !important;
+          }
+          &:has(#urlbar[focused]) .tabbrowser-tab[selected] .tab-background {
+            outline: 2px solid var(--toolbar-field-border-color-focus, var(--focus-outline-color)) !important;
+            outline-offset: -2px !important;
+          }
+
+          /* Suggestions hang from the selected tab: centered on its surface,
+           * --ct-suggestions-overhang wider on each side, --ct-suggestions-gap
+           * below it. Firefox anchors this popover to the input container and
+           * stretches it to that width; re-anchor it to the whole tab instead.
+           * Row tokens resolve at :root, so they are re-declared here. */
+          #urlbar .urlbarView {
+            margin: calc(var(--ct-suggestions-gap) - var(--tab-margin-block)) 0 0 !important;
+            padding: calc(var(--ct-suggestions-padding) - var(--ct-suggestions-row-gutter)) !important;
+            --urlbarview-row-border-radius: var(--ct-menu-item-radius);
+            --urlbarview-row-gutter: var(--ct-suggestions-row-gutter);
+            --urlbarview-row-padding-block: 2px;
+            --urlbarview-row-min-height: 28px;
+            --urlbarview-row-inner-min-height: calc(28px - 2 * 2px);
+            --urlbarview-background-color-selected: AccentColor;
+            --urlbarview-text-color-selected: AccentColorText;
+          }
+          /* Neutral secondary line instead of the link-colored URL. */
+          #urlbar .urlbarView-row:not([selected]) .urlbarView-url {
+            color: color-mix(in srgb, currentColor 60%, transparent) !important;
+          }
+          #urlbar .urlbarView:popover-open {
+            position-anchor: --ct-selected !important;
+            inset-inline: calc(var(--ct-tab-inset) - var(--ct-suggestions-overhang)) !important;
+          }
+          #urlbar .urlbarView-background {
+            inset: 0 !important;
+            clip-path: none !important;
+            border-radius: var(--ct-radius) !important;
+            border: 1px solid var(--panel-border-color) !important;
+          }
+
+          /* Keep identity labels, status colors and keyboard focus treatment;
+           * strip only the nested button/pill surfaces, not their spacing. */
+          #urlbar :is(.identity-box-button, #trust-icon-container,
+            #tracking-protection-icon-container, .urlbar-page-action,
+            #urlbar-search-mode-indicator, .urlbar-go-button,
+            #urlbar-revert-button-container) {
+            background: transparent !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+          }
+          #urlbar .urlbar-input::-moz-search-clear-button {
+            background-color: transparent !important;
+          }
+
+          /* Every in-field glyph is 12px. The go arrow is sized by padding below. */
+          #urlbar :is(#trust-icon, #identity-icon, #tracking-protection-icon),
+          #urlbar .urlbar-icon:not(.urlbar-go-button) {
+            width: 12px !important;
+            height: 12px !important;
+          }
+
+          /* The typing/search arrow is a direct image, outside page actions. */
+          #urlbar .urlbar-go-button {
+            box-sizing: border-box !important;
+            width: var(--ct-tab-action-width) !important;
+            min-width: var(--ct-tab-action-width) !important;
+            height: var(--ct-cell-height) !important;
+            padding: calc((var(--ct-cell-height) - 12px) / 2)
+              calc((var(--ct-tab-action-width) - 12px) / 2) !important;
+            margin: 0 !important;
+          }
+
+          /* Translated pages add a language badge (and a loading glyph).
+           * Keep the status visible without retaining the native 20px badge. */
+          #translations-button[translationsactive] {
+            width: auto !important;
+            min-width: var(--ct-tab-action-width) !important;
+            margin-inline: 0 !important;
+          }
+          #translations-button[translationsactive] > #translations-button-icon {
+            margin-inline: 2px !important;
+          }
+          #translations-button-circle-arrows {
+            margin-inline-end: 2px !important;
+          }
+          #translations-button-locale {
+            font-size: 9px !important;
+            height: 16px !important;
+            min-width: 16px !important;
+            padding: 1px !important;
+            margin: 0 2px 0 0 !important;
+          }
+
+          #urlbar :is(#trust-icon-container, #identity-icon-box,
+            #tracking-protection-icon-container):is(:hover, [open], :focus-visible)
+            :is(#trust-icon, #identity-icon, #tracking-protection-icon),
+          #urlbar :is(.urlbar-page-action, #urlbar-revert-button-container):is(:hover, [open], :focus-visible, :focus-within) > .urlbar-icon,
+          #urlbar .urlbar-go-button:is(:hover, :focus-visible),
+          #stop-reload-button > toolbarbutton:is(:hover, :focus-visible) > .toolbarbutton-icon {
+            color: var(--ct-icon-hover-color) !important;
+            fill: currentColor !important;
+            fill-opacity: 1 !important;
+          }
+        }
+
+        /* Sound glyphs for a selected pin, whose button Firefox never draws.
+         * ::part() only applies from a plain top-level selector, so these
+         * sit outside the nested block above and are not nested themselves. */
+        :root:not([customizing], [inDOMFullscreen], [popup-window], [chromeless-window], [web-extension-popup-window]) #tabbrowser-tabs:not([movingtab]) .tabbrowser-tab[selected][pinned] .tab-audio-button[soundplaying]::part(button) {
+          background-image: url("chrome://browser/skin/tabbrowser/tab-audio-playing-small.svg");
+        }
+        :root:not([customizing], [inDOMFullscreen], [popup-window], [chromeless-window], [web-extension-popup-window]) #tabbrowser-tabs:not([movingtab]) .tabbrowser-tab[selected][pinned] .tab-audio-button[muted]::part(button) {
+          background-image: url("chrome://browser/skin/tabbrowser/tab-audio-muted-small.svg");
+        }
+        :root:not([customizing], [inDOMFullscreen], [popup-window], [chromeless-window], [web-extension-popup-window]) #tabbrowser-tabs:not([movingtab]) .tabbrowser-tab[selected][pinned] .tab-audio-button[activemedia-blocked]::part(button) {
+          background-image: url("chrome://browser/skin/tabbrowser/tab-audio-blocked-circle-12.svg");
+        }
+      }
+    }
+  }
+}

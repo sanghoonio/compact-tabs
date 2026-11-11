@@ -1,5 +1,7 @@
-// Firefox preferences the theme depends on. scripts/install-dev.py writes these
-// into the profile's user.js as a marked block and touches nothing outside it.
+// Compact Tabs: Firefox preferences the theme depends on.
+// install.sh adds these to the profile's user.js as a marked block, leaving
+// any other lines alone; uninstall.sh removes the block. To install by hand,
+// copy these lines into user.js in your profile folder.
 
 // Load userChrome.css at all.
 user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
@@ -8,6 +10,12 @@ user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
 // 160, browser.urlbar.contextualSearch.enabled is overridden by
 // browser.urlbar.scotchBonnet.enableOverride, so this is the effective switch.
 user_pref("browser.urlbar.suggest.engines", false);
+
+// Normal density, chosen explicitly. With Nova, Firefox 160 switches to
+// compact density on its own in windows under 720px tall (or narrow ones with
+// the sidebar launcher collapsed), changing sizes mid-resize. Any explicit
+// value turns that off.
+user_pref("browser.uidensity", 0);
 
 // Show "wikipedia.org" rather than "www.wikipedia.org", closer to Safari's
 // domain display. Firefox 160 already hides "https://" and restores the full
@@ -22,8 +30,3 @@ user_pref("browser.tabs.dragDrop.createGroup.enabled", false);
 // bookmarks only and anchors it to the menu button at the window's right
 // edge, where it runs off the window; a count of 3 means it never opens.
 user_pref("browser.bookmarks.editDialog.confirmationHintShowCount", 3);
-
-// Development only: enable the Browser Toolbox (Tools > Browser Tools), whose
-// Inspector shows Firefox's own interface instead of the web page.
-user_pref("devtools.chrome.enabled", true);
-user_pref("devtools.debugger.remote-enabled", true);
