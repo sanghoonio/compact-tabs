@@ -11,7 +11,7 @@
     --ct-toolbar-plate-size: calc(16px + 2 * var(--ct-toolbar-inner-padding));
     --ct-icon-hover-color: AccentColor;
     --ct-close-hover-color: light-dark(var(--color-red-50), var(--color-red-20));
-    --ct-tab-font-size: calc(1rem + 2pt);
+    --ct-tab-font-size: calc(1rem + 1pt);
     --ct-inactive: light-dark(rgb(0 0 0 / 0.045), rgb(255 255 255 / 0.055));
     --ct-selected: light-dark(rgb(0 0 0 / 0.13), rgb(255 255 255 / 0.16));
     --tab-min-height: var(--ct-cell-height) !important;
@@ -72,6 +72,15 @@
     border-radius: 0 !important;
   }
 
+  /* Remove the unused close target from layout so the title can expand. */
+  #tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([selected], :hover) .tab-close-button {
+    display: none !important;
+  }
+
+  #tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned]):is([selected], :hover) .tab-close-button {
+    display: flex !important;
+  }
+
   #tabbrowser-tabs[orient="horizontal"] .tab-close-button:hover {
     color: var(--ct-close-hover-color) !important;
     fill: currentColor !important;
@@ -108,9 +117,33 @@
 
   /* Firefox's Extensions hub is non-removable in the shipped toolbar markup.
    * Manage extensions through the application menu or about:addons instead. */
-  :root:not([customizing]) :is(#unified-extensions-button, #ipprotection-button),
-  #star-button-box {
+  :root:not([customizing]) :is(#unified-extensions-button, #ipprotection-button, #fxa-toolbar-menu-button) {
     display: none !important;
+  }
+
+  /* BookmarkingUI needs a nonzero anchor rect for the Cmd+D dialog.
+   * Keep it invisible and out of flow instead of removing it with display:none. */
+  #star-button-box {
+    display: flex !important;
+    position: absolute !important;
+    inset-inline-end: 0 !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 1px !important;
+    min-width: 1px !important;
+    height: 12px !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  /* A native bookmark panel must not paint above another active app. */
+  :root:-moz-window-inactive #editBookmarkPanel {
+    visibility: hidden !important;
+  }
+
+  #PersonalToolbar .toolbarbutton-icon {
+    width: 12px !important;
+    height: 12px !important;
   }
 
   /* Keep native focus outlines and window-state behavior. */

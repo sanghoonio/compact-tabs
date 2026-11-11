@@ -5,13 +5,17 @@
 @-moz-document url("chrome://browser/content/browser.xhtml") {
   @supports (anchor-name: --ct-selected) and (left: anchor(left)) {
     @media (min-width: 1100px) and (-moz-platform: macos) {
-      :root:not([customizing], [inFullscreen], [inDOMFullscreen])
+      :root:not([customizing], [inDOMFullscreen])
         :is(#navigator-toolbox):has(#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab[selected]:not([pinned])):not(:has(#tabbrowser-tabs tab-group)) {
+        anchor-name: --ct-toolbar;
         display: grid !important;
         grid-template-columns: minmax(0, 1fr);
         align-items: center;
         --ct-history-width: 72px;
         --ct-tab-action-width: 20px;
+        --ct-navigation-tab-spacing: 24px;
+        --ct-strip-left-reserve: calc(121px + var(--ct-navigation-tab-spacing) + var(--ct-history-width));
+        --ct-strip-right-reserve: calc(80px + var(--ct-navigation-tab-spacing));
 
         &:has(#back-button[disabled]), &:has(#forward-button[disabled]) {
           --ct-history-width: 36px;
@@ -41,7 +45,8 @@
         }
 
         #TabsToolbar > .toolbar-items {
-          margin-inline: calc(24px + var(--ct-history-width)) 170px !important;
+          /* Match the two group gaps, compensating for native trailing spacers. */
+          margin-inline: calc(4px + var(--ct-navigation-tab-spacing) + var(--ct-history-width)) calc(76px + var(--ct-navigation-tab-spacing)) !important;
           min-width: 0 !important;
         }
 
@@ -49,10 +54,27 @@
           background: transparent !important;
           box-shadow: none !important;
           border: 0 !important;
-          padding-inline: 80px 4px !important;
+          padding-inline: 83px 4px !important;
           pointer-events: none;
           z-index: 3;
           display: flex !important;
+        }
+
+        /* Visible gaps: 20px before red, 25px from green to sidebar. */
+        #TabsToolbar .titlebar-buttonbox {
+          margin-inline: 19px 0 !important;
+        }
+
+        /* Keep the native window-button box in the SAME compact row when
+         * macOS reveals it in fullscreen, rather than relocating navigation
+         * into the space where the traffic lights belong. */
+        :root[inFullscreen] & #TabsToolbar > .titlebar-buttonbox-container {
+          display: flex !important;
+          align-items: center !important;
+        }
+        :root[inFullscreen] & #TabsToolbar > .titlebar-spacer[type="pre-tabs"] {
+          display: flex !important;
+          width: 40px !important;
         }
 
         #nav-bar-customization-target {
@@ -61,10 +83,11 @@
           min-width: 0 !important;
           padding-inline-end: 36px !important;
         }
-        /* Own slot between trailing toolbar actions and the app menu. */
-        #alltabs-button {
+        /* Fixed trailing group: New Tab, List All Tabs, application menu. */
+        :is(#alltabs-button, #new-tab-button) {
           position: fixed !important;
-          top: 0 !important;
+          position-anchor: --ct-toolbar;
+          top: anchor(top) !important;
           right: 42px !important;
           width: calc(var(--ct-toolbar-plate-size) + 2 * var(--toolbarbutton-padding-outer)) !important;
           height: var(--ct-row-height) !important;
@@ -73,6 +96,20 @@
           margin: 0 !important;
           z-index: 4;
         }
+        #tabs-newtab-button { display: none !important; }
+        #new-tab-button {
+          display: flex !important;
+          right: 78px !important;
+          --toolbarbutton-padding-inner: var(--ct-toolbar-inner-padding) !important;
+        }
+        #new-tab-button > .toolbarbutton-icon {
+          box-sizing: border-box !important;
+          width: var(--ct-toolbar-plate-size) !important;
+          height: var(--ct-toolbar-plate-size) !important;
+          padding: var(--ct-toolbar-inner-padding) !important;
+          border-radius: var(--ct-radius) !important;
+        }
+
         #forward-button { margin-inline-end: auto !important; }
         &:has(#forward-button[disabled]) #back-button { margin-inline-end: auto !important; }
         &:has(#back-button[disabled]):has(#forward-button[disabled]) #sidebar-button { margin-inline-end: auto !important; }
@@ -111,12 +148,40 @@
         #nav-bar toolbarbutton, #urlbar-container { pointer-events: auto; }
         #nav-bar toolbarspring { flex: 1 !important; }
 
-        #tabbrowser-tabs { justify-content: center; }
+        #TabsToolbar-customization-target > toolbarspring { display: none !important; }
+        #tabbrowser-tabs {
+          flex: 1 1 0% !important;
+          min-width: 0 !important;
+          max-width: none !important;
+          padding-inline:
+            max(0px, calc(var(--ct-strip-right-reserve) - var(--ct-strip-left-reserve)))
+            max(0px, calc(var(--ct-strip-left-reserve) - var(--ct-strip-right-reserve))) !important;
+        }
+
+        /* Center actual tab surfaces, not only the full-width outer tabs box.
+         * Balance the unequal toolbar groups about the window midpoint. Safe
+         * centering keeps the first tab reachable when native scrolling starts. */
+        #tabbrowser-arrowscrollbox[orient="horizontal"]::part(scrollbox) {
+          justify-content: safe center !important;
+        }
+        #tabbrowser-arrowscrollbox[orient="horizontal"]::part(items-wrapper) {
+          justify-content: safe center !important;
+        }
+        #tabbrowser-arrowscrollbox > .tabbrowser-tab:first-of-type {
+          margin-inline-start: auto !important;
+        }
+        #tabbrowser-arrowscrollbox-periphery {
+          margin-inline-end: auto !important;
+        }
         .tabbrowser-tab[selected]:not([pinned]) {
           anchor-name: --ct-selected;
           min-width: 300px !important;
-          max-width: 420px !important;
-          flex: 3 1 300px !important;
+          max-width: 480px !important;
+          flex: 3 1 480px !important;
+        }
+
+        &:not(:has(.tabbrowser-tab ~ .tabbrowser-tab)) .tabbrowser-tab[selected] {
+          max-width: calc(40vw + var(--ct-tab-gap)) !important;
         }
 
         /* The real tab close button stays visible at the trailing edge. */
@@ -131,7 +196,7 @@
           margin-inline-end: -3px !important;
         }
 
-        #urlbar #page-action-buttons > .urlbar-page-action:not(#translations-button[translationsactive]) {
+        #urlbar #page-action-buttons > .urlbar-page-action:not(#star-button-box, #translations-button[translationsactive]) {
           width: var(--ct-tab-action-width) !important;
           min-width: var(--ct-tab-action-width) !important;
           margin-inline: 0 !important;
@@ -202,7 +267,7 @@
          * strip only the nested button/pill surfaces, not their spacing. */
         #urlbar :is(.identity-box-button, #trust-icon-container,
           #tracking-protection-icon-container, .urlbar-page-action,
-          .searchmode-switcher, #urlbar-search-mode-indicator) {
+          .searchmode-switcher, #urlbar-search-mode-indicator, .urlbar-go-button) {
           background: transparent !important;
           box-shadow: none !important;
           border-radius: 0 !important;
@@ -225,6 +290,17 @@
         #urlbar #page-action-buttons .urlbar-icon {
           width: 12px !important;
           height: 12px !important;
+        }
+
+        /* The typing/search arrow is a direct image, outside page actions. */
+        #urlbar .urlbar-go-button {
+          box-sizing: border-box !important;
+          width: var(--ct-tab-action-width) !important;
+          min-width: var(--ct-tab-action-width) !important;
+          height: var(--ct-cell-height) !important;
+          padding: calc((var(--ct-cell-height) - 12px) / 2)
+            calc((var(--ct-tab-action-width) - 12px) / 2) !important;
+          margin: 0 !important;
         }
 
         /* Translated pages add a language badge (and a loading glyph).
@@ -252,6 +328,7 @@
           #tracking-protection-icon-container):is(:hover, [open], :focus-visible)
           :is(#trust-icon, #identity-icon, #tracking-protection-icon),
         #urlbar .urlbar-page-action:is(:hover, [open], :focus-visible) > .urlbar-icon,
+        #urlbar .urlbar-go-button:is(:hover, :focus-visible),
         #stop-reload-button > toolbarbutton:is(:hover, :focus-visible) > .toolbarbutton-icon {
           color: var(--ct-icon-hover-color) !important;
           fill: currentColor !important;

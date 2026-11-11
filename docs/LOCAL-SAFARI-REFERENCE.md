@@ -73,3 +73,11 @@ Pinning the first survey tab through Window > Pin Tab demonstrated two states:
 - Inactive pin: a favicon-only cell approximately 32 pixels wide (x=161–193), followed by a subtle vertical divider. Selecting an ordinary tab restored a larger address field there.
 
 The pin was explicitly removed and the accessibility tree confirmed all three survey tabs were unpinned. Closing the temporary window was attempted, but both the close action and the subsequent observation timed out; final closure could not be confirmed. Existing user tabs were not edited. Dark, overflow, drag, suggestion-panel and window-focus states remain outstanding.
+
+## Follow-up: centered groups and fullscreen reference (2026-11-11)
+
+Temporary Safari windows with one, two, three and six tabs confirmed centered groups with growing occupancy. In the roughly 1512-point-wide window, inactive tabs were approximately 148pt wide and selected fields with multiple tabs approximately 480pt wide. A single field occupied roughly 40% of the window. These are screenshot estimates, not AX frame measurements.
+
+The user supplied a fullscreen reveal screenshot showing the native traffic lights inline at the leading edge of the compact toolbar, before Sidebar and the tab group. They do not occupy an additional strip above that row. Earlier claims about the reveal based on app-only screenshots were inconclusive and should not be treated as verified.
+
+The second user-supplied reference shows balanced horizontal whitespace around the traffic-light group: window edge → red light and green light → sidebar glyph. Match the visible edge spacing, preserving Firefox’s sidebar icon and native window controls.
