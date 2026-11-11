@@ -35,7 +35,7 @@
         }
 
         #TabsToolbar > .toolbar-items {
-          margin-inline: calc(32px + var(--ct-history-width)) 170px !important;
+          margin-inline: calc(28px + var(--ct-history-width)) 170px !important;
           min-width: 0 !important;
         }
 
@@ -67,6 +67,12 @@
           margin: 0 !important;
           z-index: 4;
         }
+        /* Trim 2px on each side without changing the glyph or vertical target. */
+        #sidebar-button > .toolbarbutton-icon {
+          width: calc(var(--ct-toolbar-plate-size) - 4px) !important;
+          padding-inline: calc(var(--ct-toolbar-inner-padding) - 2px) !important;
+        }
+
         #forward-button { margin-inline-end: auto !important; }
         &:has(#forward-button[disabled]) #back-button { margin-inline-end: auto !important; }
         &:has(#back-button[disabled]):has(#forward-button[disabled]) #sidebar-button { margin-inline-end: auto !important; }
